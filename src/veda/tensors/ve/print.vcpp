@@ -1,0 +1,43 @@
+#include "kernel.h"
+
+//------------------------------------------------------------------------------
+#define PRINT(TYPE, SYM) VEDAresult veda_tensors_print(const TYPE* ptr, const size_t elements) {\
+	for(size_t i = 0; i < elements; i++)\
+		L_INFO("%p[%llu]: " SYM "\n", &ptr[i], i, ptr[i]);\
+	return VEDA_SUCCESS;\
+}
+
+PRINT(int8_t, "%i")
+PRINT(int16_t, "%i")
+PRINT(int32_t, "%i")
+PRINT(int64_t, "%lli")
+PRINT(uint8_t, "%u")
+PRINT(uint16_t, "%u")
+PRINT(uint32_t, "%u")
+PRINT(uint64_t, "%llu")
+PRINT(float, "%f")
+PRINT(double, "%f")
+#undef PRINT
+
+//------------------------------------------------------------------------------
+#define PRINT(TYPE, SYM) VEDAresult veda_tensors_print(const TYPE* ptr, const size_t elements) {\
+	for(size_t i = 0; i < elements; i++)\
+		L_INFO("%p[%llu]: " SYM "\n", &ptr[i], i, ptr[i].x, ptr[i].y);\
+	return VEDA_SUCCESS;\
+}
+
+PRINT(float_float,   "%f+%fj")
+PRINT(double_double, "%f+%fj")
+#undef PRINT
+
+//------------------------------------------------------------------------------
+template<typename T>				inline VEDAresult veda_tensors_print(const void* ptr, const size_t elements) {	return veda_tensors_print((const T*)ptr, elements);	}
+template<typename S, typename T>	inline VEDAresult veda_tensors_print(const void* ptr, const size_t elements) {	return veda_tensors_print((const T*)ptr, elements);	}
+
+//------------------------------------------------------------------------------
+extern "C" void veda_tensors_print(VEDAdeviceptr _ptr, const uint64_t elements, const int32_t type) {
+	auto ptr = VEDAptr<void>(_ptr).ptr();
+	KERNEL_ALL(type, veda_tensors_print, ptr, elements);
+}
+
+//------------------------------------------------------------------------------

@@ -1,0 +1,18 @@
+#include <veda_device.h>
+#include "api.h"
+
+//------------------------------------------------------------------------------
+void veda_tensors_nop(void) {
+}
+
+//------------------------------------------------------------------------------
+void veda_tensors_check(VEDAresult err, const char* file, const int line) {
+	if(VEDA_TENSORS_UNLIKELY(err != VEDA_SUCCESS)) {
+		const char *name, *string;
+		vedaGetErrorName(err, &name);
+		vedaGetErrorString(err, &string);
+		THROWAT(L_MODULE, file, line, "%s: %s", name, string);
+	}
+}
+
+//------------------------------------------------------------------------------

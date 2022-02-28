@@ -1,0 +1,34 @@
+#include "kernel.h"
+
+//------------------------------------------------------------------------------
+#define UnaryTTS(NAME, ...)\
+	struct NAME {\
+		template<typename S, typename T>\
+		inline T operator()(const T a, const T b, const S alpha) const {\
+			return __VA_ARGS__;\
+		}\
+	}
+
+UnaryTTS(AlphaAdd, a + (b * alpha));
+UnaryTTS(AlphaSub, a - (b * alpha));
+#undef UnaryTTS
+
+//------------------------------------------------------------------------------
+template<typename S, typename T=S>
+inline VEDAresult veda_tensors_unary_tts(void* o, const void* x, const void* y, const void* alpha, const size_t co, const size_t cx, const size_t cy, const int32_t op) {
+	switch(op) {
+		case VEDA_TENSORS_UNARYOP_ADD:		veda_tensors_xyz((T*)o, (const T*)x, (const T*)y, (const S*)alpha, co, cx, cy, 1, AlphaAdd());	return  VEDA_SUCCESS;
+		case VEDA_TENSORS_UNARYOP_SUB:		veda_tensors_xyz((T*)o, (const T*)x, (const T*)y, (const S*)alpha, co, cx, cy, 1, AlphaSub());	return  VEDA_SUCCESS;
+	}
+	return VEDA_ERROR_NOT_IMPLEMENTED;
+}
+
+//------------------------------------------------------------------------------
+extern "C" void veda_tensors_unary_tts(VEDAdeviceptr _o, VEDAdeviceptr _x, VEDAdeviceptr _y, const void* alpha, const size_t co, const size_t cx, const size_t cy, const int32_t op, const int32_t type) {
+	auto o	= VEDAptr<void>(_o).ptr();
+	auto x	= VEDAptr<void>(_x).ptr();
+	auto y	= VEDAptr<void>(_y).ptr();
+	KERNEL_ALL(type, veda_tensors_unary_tts, o, x, y, alpha, co, cx, cy, op);
+}
+
+//------------------------------------------------------------------------------

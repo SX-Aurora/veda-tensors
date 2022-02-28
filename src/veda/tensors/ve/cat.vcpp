@@ -1,0 +1,125 @@
+#include "kernel.h"
+
+//------------------------------------------------------------------------------
+// CAT LCR
+//------------------------------------------------------------------------------
+template<typename T>
+static void veda_tensors_cat_lcr(T* output, const int cnt, const VEDAdeviceptr* inputs, const int* offsets, const int* centers, const int left, const int right) {
+	for(int i = 0; i < cnt; i++) {
+		auto input	= VEDAptr<T>(inputs[i]).ptr();
+		auto offset = offsets[i];
+		auto center = centers[i];
+
+		for(int L = 0; L < left; L++) {
+			for(int C = 0; C < center; C++) {
+				auto out = output + L * offset * center + (offset + C) * right;
+				auto in  = input  + L *          center +           C  * right;
+
+				for(int R = 0; R < right; R++)
+					out[R] = in[R];
+			}
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// CAT CR
+//------------------------------------------------------------------------------
+template<typename T>
+static void veda_tensors_cat_cr(T* output, const int cnt, const VEDAdeviceptr* inputs, const int* offsets, const int* centers, const int right) {
+	for(int i = 0; i < cnt; i++) {
+		auto input	= VEDAptr<T>(inputs[i]).ptr();
+		auto offset = offsets[i];
+		auto center = centers[i];
+
+		for(int C = 0; C < center; C++) {
+			auto out = output + (offset + C) * right;
+			auto in  = input  +           C  * right;
+
+			for(int R = 0; R < right; R++)
+				out[R] = in[R];
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// CAT LC
+//------------------------------------------------------------------------------
+template<typename T>
+static void veda_tensors_cat_lc(T* output, const int cnt, const VEDAdeviceptr* inputs, const int* offsets, const int* centers, const int left) {
+	for(int i = 0; i < cnt; i++) {
+		auto input	= VEDAptr<T>(inputs[i]).ptr();
+		auto offset = offsets[i];
+		auto center = centers[i];
+
+		for(int L = 0; L < left; L++) {
+			auto out = output + L * offset * center + offset;
+			auto in  = input  + L *          center;
+
+			for(int C = 0; C < center; C++)
+				out[C] = in[C];
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// CAT C
+//------------------------------------------------------------------------------
+template<typename T>
+static void veda_tensors_cat_c(T* output, const int cnt, const VEDAdeviceptr* inputs, const int* offsets, const int* centers) {
+	for(int i = 0; i < cnt; i++) {
+		auto input	= VEDAptr<T>(inputs[i]).ptr();
+		auto offset = offsets[i];
+		auto center = centers[i];
+		auto out	= output + offset;
+
+		for(int C = 0; C < center; C++)
+			out[C] = input[C];
+	}
+}
+
+//------------------------------------------------------------------------------
+// CAT
+//------------------------------------------------------------------------------
+extern "C" void veda_tensors_cat(const int32_t cnt, VEDAdeviceptr _output, const VEDAdeviceptr _inputs, const VEDAdeviceptr _offsets, const VEDAdeviceptr _center, const int32_t left, const int32_t right, const int32_t bytes) {
+	auto output		= VEDAptr<void>			(_output) .ptr();
+	auto inputs		= VEDAptr<VEDAdeviceptr>(_inputs) .ptr();
+	auto offsets	= VEDAptr<int32_t>		(_offsets).ptr();
+	auto center		= VEDAptr<int32_t>		(_center) .ptr();
+
+	if(left == 1) {
+		if(right == 1) {
+			switch(bytes) {
+				case 1:	veda_tensors_cat_c<int8_t> ((int8_t*) output, cnt, inputs, offsets, center); return;
+				case 2:	veda_tensors_cat_c<int16_t>((int16_t*)output, cnt, inputs, offsets, center); return;
+				case 4:	veda_tensors_cat_c<int32_t>((int32_t*)output, cnt, inputs, offsets, center); return;
+				case 8:	veda_tensors_cat_c<int64_t>((int64_t*)output, cnt, inputs, offsets, center); return;
+			}
+		} else {
+			switch(bytes) {
+				case 1:	veda_tensors_cat_cr<int8_t> ((int8_t*) output, cnt, inputs, offsets, center, right);	return;
+				case 2:	veda_tensors_cat_cr<int16_t>((int16_t*)output, cnt, inputs, offsets, center, right);	return;
+				case 4:	veda_tensors_cat_cr<int32_t>((int32_t*)output, cnt, inputs, offsets, center, right);	return;
+				case 8:	veda_tensors_cat_cr<int64_t>((int64_t*)output, cnt, inputs, offsets, center, right);	return;
+			}					
+		}
+	} else {
+		if(right == 0) {
+			switch(bytes) {
+				case 1:	veda_tensors_cat_lc<int8_t> ((int8_t*) output, cnt, inputs, offsets, center, left);	return;
+				case 2:	veda_tensors_cat_lc<int16_t>((int16_t*)output, cnt, inputs, offsets, center, left);	return;
+				case 4:	veda_tensors_cat_lc<int32_t>((int32_t*)output, cnt, inputs, offsets, center, left);	return;
+				case 8:	veda_tensors_cat_lc<int64_t>((int64_t*)output, cnt, inputs, offsets, center, left);	return;
+			}
+		} else {
+			switch(bytes) {
+				case 1:	veda_tensors_cat_lcr<int8_t> ((int8_t*) output, cnt, inputs, offsets, center, left, right);	return;
+				case 2:	veda_tensors_cat_lcr<int16_t>((int16_t*)output, cnt, inputs, offsets, center, left, right);	return;
+				case 4:	veda_tensors_cat_lcr<int32_t>((int32_t*)output, cnt, inputs, offsets, center, left, right);	return;
+				case 8:	veda_tensors_cat_lcr<int64_t>((int64_t*)output, cnt, inputs, offsets, center, left, right);	return;
+			}
+		}
+	}
+
+	FAIL();
+}

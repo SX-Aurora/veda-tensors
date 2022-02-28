@@ -1,0 +1,39 @@
+#include "kernel.h"
+
+//------------------------------------------------------------------------------
+#define BitwiseOp(NAME, ...)\
+	struct NAME {\
+		template<typename T>\
+		inline T operator()(const T a, const T b) const {\
+			return __VA_ARGS__;\
+		}\
+	};
+
+BitwiseOp(AND,	a & b)
+BitwiseOp(OR,	a | b)
+BitwiseOp(XOR,	a ^ b)
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline void veda_tensors_bitwise(void* o, const void* x, const void* y, const size_t co, const size_t cx, const size_t cy, const int op) {
+	switch(op) {
+		case VEDA_TENSORS_BITWISEOP_AND:	return veda_tensors_xy((T*)o, (const T*)x, (const T*)y, co, cx, cy, AND());
+		case VEDA_TENSORS_BITWISEOP_OR:		return veda_tensors_xy((T*)o, (const T*)x, (const T*)y, co, cx, cy, OR());
+		case VEDA_TENSORS_BITWISEOP_XOR:	return veda_tensors_xy((T*)o, (const T*)x, (const T*)y, co, cx, cy, XOR());
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------
+extern "C" void veda_tensors_bitwise(VEDAdeviceptr _o, VEDAdeviceptr _x, VEDAdeviceptr _y, const size_t co, const size_t cx, const size_t cy, const int32_t op, const int32_t bytes) {
+	auto o = VEDAptr<void>(_o).ptr(), x = VEDAptr<void>(_x).ptr(), y = VEDAptr<void>(_y).ptr();
+	switch(bytes) {
+		case 1: veda_tensors_bitwise<int8_t>	(o, x, y, co, cx, cy, op);	break;
+		case 2: veda_tensors_bitwise<int16_t>	(o, x, y, co, cx, cy, op);	break;
+		case 4: veda_tensors_bitwise<int32_t>	(o, x, y, co, cx, cy, op);	break;
+		case 8: veda_tensors_bitwise<int64_t>	(o, x, y, co, cx, cy, op);	break;
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------

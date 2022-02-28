@@ -1,0 +1,24 @@
+#include "kernel.h"
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline VEDAresult veda_tensors_d2d_transposed(T* dst, T* src, const uint64_t sizeA, const uint64_t sizeB) {
+	for(uint64_t A = 0; A < sizeA; A++) {
+		for(uint64_t B = 0; B < sizeB; B++)
+			dst[A * sizeB + B] = src[B * sizeA + A];
+	}
+	return VEDA_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+extern "C" void veda_tensors_d2d_transposed(VEDAdeviceptr _dst, VEDAdeviceptr _src, const uint64_t sizeA, const uint64_t sizeB, const int32_t bits) {
+	auto dst = VEDAptr<void>(_dst).ptr();
+	auto src = VEDAptr<void>(_src).ptr();
+	switch(bits) {
+		case 32:	FVEDA(veda_tensors_d2d_transposed((int32_t*)dst, (int32_t*)src, sizeA, sizeB));	return;
+		case 64:	FVEDA(veda_tensors_d2d_transposed((int64_t*)dst, (int64_t*)src, sizeA, sizeB));	return;
+		default:	FVEDA(VEDA_ERROR_NOT_IMPLEMENTED);
+	}
+}
+
+//------------------------------------------------------------------------------

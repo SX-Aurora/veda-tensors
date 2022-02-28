@@ -1,0 +1,35 @@
+#include "kernel.h"
+
+//------------------------------------------------------------------------------
+#define UnaryB(NAME, ...)\
+	struct NAME {\
+		template<typename T>\
+		inline boolean operator()(const T a) const {\
+			return __VA_ARGS__;\
+		}\
+	}
+
+UnaryB(IsFinite,	a != std::numeric_limits<T>::infinity());
+UnaryB(IsInf,		a == std::numeric_limits<T>::infinity());
+UnaryB(IsNan,		!(a == a));
+#undef UnaryB
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline VEDAresult veda_tensors_unary_b(boolean* o, const void* x, const size_t co, const size_t cx, const int32_t op) {
+	switch(op) {
+		case VEDA_TENSORS_UNARYOP_ISFINITE:	return veda_tensors_x(o, (const T*)x, co, cx, IsFinite());
+		case VEDA_TENSORS_UNARYOP_ISINF:		return veda_tensors_x(o, (const T*)x, co, cx, IsInf());
+		case VEDA_TENSORS_UNARYOP_ISNAN:		return veda_tensors_x(o, (const T*)x, co, cx, IsNan());
+	}
+	return VEDA_ERROR_NOT_IMPLEMENTED;
+}
+
+//------------------------------------------------------------------------------
+extern "C" void veda_tensors_unary_b(VEDAdeviceptr _o, VEDAdeviceptr _x, const size_t co, const size_t cx, const int32_t op, const int32_t type) {
+	auto o	= VEDAptr<boolean>	(_o).ptr();
+	auto x	= VEDAptr<void>		(_x) .ptr();
+	KERNEL_PRIMITIVE(type, veda_tensors_unary_b, o, x, co, cx, op)
+}
+
+//------------------------------------------------------------------------------

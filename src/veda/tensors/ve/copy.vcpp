@@ -1,0 +1,20 @@
+#include "kernel.h"
+
+//------------------------------------------------------------------------------
+extern "C" void veda_tensors_copy(VEDAdeviceptr _o, VEDAdeviceptr _x, const size_t cnt, const int32_t bytes) {
+	auto o	= VEDAptr<void>(_o).ptr();
+	auto x	= VEDAptr<void>(_x).ptr();
+	switch(bytes) {
+		case 1:		FVEDA(vedaMemsetD8  (o, *(const int8_t*) x,	cnt));	return;
+		case 2:		FVEDA(vedaMemsetD16 (o, *(const int16_t*)x,	cnt));	return;
+		case 4:		FVEDA(vedaMemsetD32 (o, *(const int32_t*)x,	cnt));	return;
+		case 8:		FVEDA(vedaMemsetD64 (o, *(const int64_t*)x,	cnt));	return;
+		case 16: {
+			auto ptr = (const int64_t*)x;
+			FVEDA(vedaMemsetD128(o, ptr[0], ptr[1], cnt));
+		} return;
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------
