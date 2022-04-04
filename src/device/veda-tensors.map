@@ -1,0 +1,4 @@
+{
+	global: veda_tensors*;
+	local: *;
+};

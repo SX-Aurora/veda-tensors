@@ -1,0 +1,23 @@
+CONFIGURE_FILE(${CMAKE_CURRENT_LIST_DIR}/version.in.h ${CMAKE_CURRENT_BINARY_DIR}/veda/tensors/version.h)
+
+LIST(APPEND SRC
+	${CMAKE_CURRENT_LIST_DIR}/get.cpp
+	${CMAKE_CURRENT_LIST_DIR}/init.cpp
+	${CMAKE_CURRENT_LIST_DIR}/low_level.cpp
+	${CMAKE_CURRENT_LIST_DIR}/high_level.cpp	
+)
+
+INSTALL(FILES
+	${CMAKE_CURRENT_BINARY_DIR}/veda/tensors/version.h
+	${CMAKE_CURRENT_LIST_DIR}/api.h
+	${CMAKE_CURRENT_LIST_DIR}/types.h
+	${CMAKE_CURRENT_LIST_DIR}/enums.h
+	${CMAKE_CURRENT_LIST_DIR}/low_level.h
+	${CMAKE_CURRENT_LIST_DIR}/high_level.h
+	${CMAKE_CURRENT_LIST_DIR}/get.h
+	${CMAKE_CURRENT_LIST_DIR}/init.h
+	${CMAKE_CURRENT_LIST_DIR}/macros.h
+	${CMAKE_CURRENT_LIST_DIR}/scalar.h
+DESTINATION
+	${VEDATensors_INSTALL_PATH}/include/veda/tensors
+)

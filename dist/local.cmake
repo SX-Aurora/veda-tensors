@@ -1,0 +1,2 @@
+SET(VEDATensors_INSTALL_PATH "veda-tensors-${VEDA_VERSION}")
+ILLYRIAN_INSTALL_SYMLINK(${VEDATensors_INSTALL_PATH} veda-tensors)

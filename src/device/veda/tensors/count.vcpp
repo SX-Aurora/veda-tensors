@@ -1,0 +1,26 @@
+#include "internal.h"
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline uint64_t veda_tensors_count(const T* ptr, const uint64_t elements) {
+	uint64_t cnt = 0;
+	for(uint64_t i = 0; i < elements; i++)
+		if(ptr[i])
+			cnt++;
+	return cnt;
+}
+
+//------------------------------------------------------------------------------
+__global__ uint64_t veda_tensors_count(VEDAdeviceptr ptr, const uint64_t elements, const int bytes) {
+	switch(bytes) {
+		case 1:	return veda_tensors_count(VEDAptr<int8_t> (ptr).ptr(), elements);
+		case 2:	return veda_tensors_count(VEDAptr<int16_t>(ptr).ptr(), elements);
+		case 4:	return veda_tensors_count(VEDAptr<int32_t>(ptr).ptr(), elements);
+		case 8:	return veda_tensors_count(VEDAptr<int64_t>(ptr).ptr(), elements);
+	}
+	
+	FAIL();
+	return 0;
+}
+
+//------------------------------------------------------------------------------

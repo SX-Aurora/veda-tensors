@@ -1,0 +1,70 @@
+#include "internal.h"
+
+//------------------------------------------------------------------------------
+#define UnaryT(NAME, ...)\
+	template<typename S>\
+	struct NAME {\
+		template<typename T>\
+		inline S operator()(const T a) const {\
+			return __VA_ARGS__;\
+		}\
+	}
+
+UnaryT(Abs,			std::abs(a));
+UnaryT(Sqrt,		std::sqrt(a));
+UnaryT(Rsqrt,		1/std::sqrt(a));
+UnaryT(Sin,			std::sin(a));
+UnaryT(Cos,			std::cos(a));
+UnaryT(Tan,			std::tan(a));
+UnaryT(Exp,			std::exp(a));
+UnaryT(Log,			std::log(a));
+UnaryT(Ceil,		std::ceil(a));
+UnaryT(Floor,		std::floor(a));
+UnaryT(Reciprocal,	1/a);
+#undef UnaryT
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline void veda_tensors_unary_t(void* o, const void* x, const size_t co, const size_t cx, const int op) {
+	switch(op) {
+		case VEDA_TENSORS_UNARY_ABS:		veda_tensors_x((T*)o, (const T*)x, co, cx, Abs<T>());			return;
+		case VEDA_TENSORS_UNARY_SQRT:		veda_tensors_x((T*)o, (const T*)x, co, cx, Sqrt<T>());			return;
+		case VEDA_TENSORS_UNARY_RSQRT:		veda_tensors_x((T*)o, (const T*)x, co, cx, Rsqrt<T>());			return;
+		case VEDA_TENSORS_UNARY_SIN:		veda_tensors_x((T*)o, (const T*)x, co, cx, Sin<T>());			return;
+		case VEDA_TENSORS_UNARY_COS:		veda_tensors_x((T*)o, (const T*)x, co, cx, Cos<T>());			return;
+		case VEDA_TENSORS_UNARY_TAN:		veda_tensors_x((T*)o, (const T*)x, co, cx, Tan<T>());			return;
+		case VEDA_TENSORS_UNARY_EXP:		veda_tensors_x((T*)o, (const T*)x, co, cx, Exp<T>());			return;
+		case VEDA_TENSORS_UNARY_LOG:		veda_tensors_x((T*)o, (const T*)x, co, cx, Log<T>());			return;
+		case VEDA_TENSORS_UNARY_CEIL:		veda_tensors_x((T*)o, (const T*)x, co, cx, Ceil<T>());			return;
+		case VEDA_TENSORS_UNARY_FLOOR:		veda_tensors_x((T*)o, (const T*)x, co, cx, Floor<T>());			return;
+		case VEDA_TENSORS_UNARY_RECIPROCAL:	veda_tensors_x((T*)o, (const T*)x, co, cx, Reciprocal<T>());	return;
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------
+template<typename S, typename T>
+inline VEDAresult veda_tensors_unary_t(void* o, const void* x, const size_t co, const size_t cx, const int op) {
+	switch(op) {
+		// TODO: case VEDA_TENSORS_UNARYOP_SQRT:			return veda_tensors_x((T*)o, (const T*)x, co, cx, Sqrt());
+		// TODO: case VEDA_TENSORS_UNARYOP_RSQRT:			return veda_tensors_x((T*)o, (const T*)x, co, cx, Rsqrt());
+		// TODO: case VEDA_TENSORS_UNARYOP_SIN:			return veda_tensors_x((T*)o, (const T*)x, co, cx, Sin());
+		// TODO: case VEDA_TENSORS_UNARYOP_COS:			return veda_tensors_x((T*)o, (const T*)x, co, cx, Cos());
+		// TODO: case VEDA_TENSORS_UNARYOP_TAN:			return veda_tensors_x((T*)o, (const T*)x, co, cx, Tan());
+		// TODO: case VEDA_TENSORS_UNARYOP_EXP:			return veda_tensors_x((T*)o, (const T*)x, co, cx, Exp());
+		// TODO: case VEDA_TENSORS_UNARYOP_LOG:			return veda_tensors_x((T*)o, (const T*)x, co, cx, Log());
+		//case VEDA_TENSORS_UNARYOP_CEIL:			return veda_tensors_x((T*)o, (const T*)x, co, cx, Ceil());
+		//case VEDA_TENSORS_UNARYOP_FLOOR:			return veda_tensors_x((T*)o, (const T*)x, co, cx, Floor());
+		// TODO: case VEDA_TENSORS_UNARYOP_RECIPROCAL:	return veda_tensors_x((T*)o, (const T*)x, co, cx, Reciprocal());
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------
+__global__ void veda_tensors_unary_t(VEDAdeviceptr _o, VEDAdeviceptr _x, const size_t co, const size_t cx, const int op, const int type) {
+	auto o	= VEDAptr<void>(_o).ptr();
+	auto x	= VEDAptr<void>(_x).ptr();
+	KERNEL_ALL(type, veda_tensors_unary_t, o, x, co, cx, op)
+}
+
+//------------------------------------------------------------------------------

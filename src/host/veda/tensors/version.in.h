@@ -1,0 +1,1 @@
+#define VEDA_TENSORS_VERSION "@VEDATensors_VERSION@"

@@ -1,0 +1,78 @@
+#include "internal.h"
+#include "vstl_prefix_sum.hpp"
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline void veda_tensors_prefix_sum(T* out, T* carry, const T* in, const size_t cnt, const bool inclusive) {
+	if(inclusive) {
+		vstl::seq::prefix_sum(in, out, cnt);
+		if(carry)
+			carry[0] = out[cnt-1];
+	} else {
+		out[0] = 0;
+		vstl::seq::prefix_sum(in, out+1, cnt-1);
+		if(carry)
+			carry[0] = out[cnt-2] + in[cnt-1];
+	}
+}
+
+//------------------------------------------------------------------------------
+template<typename T>
+void veda_tensors_prefix_sum(T* out_, T* carry_, const T* in_, const size_t left, const size_t center, const size_t right, const bool inclusive) {
+	if(right == 1) {
+		veda_omp(left, [&](const size_t min, const size_t max) {
+			auto out	= &out_[min * center];
+			auto in		= &in_ [min * center];
+			auto carry	= carry_ ? &carry_[min] : 0;
+
+			#pragma _NEC novector
+			for(size_t l = min; l < max; l++) {
+				veda_tensors_prefix_sum(out, carry, in, center, inclusive);
+				out += center;
+				in  += center;
+				if(carry)
+					carry++;
+			}
+		});
+	} else {
+		veda_omp(left, [&](const size_t min, const size_t max) {
+			T* tmp = new T[center];
+
+			#pragma _NEC novector
+			for(size_t l = min; l < max; l++) {
+				#pragma _NEC novector
+				for(size_t r = 0; r < right; r++) {
+					auto in		= &in_[l * center * right];
+					auto carry	= carry_ ? &carry_[l * right + r] : 0;
+					auto out	= &out_[l * center * right];
+
+					for(size_t c = 0; c < center; c++)
+						tmp[c] = in[c * right + r];
+					
+					veda_tensors_prefix_sum(tmp, carry, tmp, center, inclusive);
+						
+					for(size_t c = 0; c < center; c++) 
+						out[c * right + r] = tmp[c];
+				}
+			}
+
+			delete[] tmp;
+		});
+	}
+}
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline void veda_tensors_prefix_sum(void* out, void* carry, const void* in, const size_t left, const size_t center, const size_t right, const bool inclusive) {
+	veda_tensors_prefix_sum((T*)out, (T*)carry, (const T*)in, left, center, right, inclusive);
+}
+
+//------------------------------------------------------------------------------
+__global__ void veda_tensors_prefix_sum(VEDAdeviceptr _out, VEDAdeviceptr _carry, VEDAdeviceptr _in, const size_t left, const size_t center, const size_t right, const int type, const int inclusive) {
+	auto out	= VEDAptr<void>	(_out)	.ptr();
+	auto carry	= VEDAptr<void>	(_carry).ptr();
+	auto in		= VEDAptr<void>	(_in)	.ptr();
+	KERNEL_PRIMITIVE(type, veda_tensors_prefix_sum, out, carry, in, left, center, right, inclusive);
+}
+
+//------------------------------------------------------------------------------

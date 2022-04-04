@@ -1,0 +1,22 @@
+{
+	"name":					"veda-tensors",
+	"version":				"@VEDATensors_VERSION@",
+	"platform":				"linux_x86_x64",
+	"summary":				"VEDA Tensors",
+	"readme":				"veda/tensors/README.md",
+	"author":				"Nicolas Weber",
+	"author-email":			"nicolas.weber@neclab.eu",
+	"license":				"3 BSD-License",
+	"requires-python":		">=3.7",
+	"payload": [
+		"veda/tensors/LICENSE",
+		"veda/tensors/cmake/FindVEDATensors.cmake",
+		"veda/tensors/include/veda/tensors/*.h",
+		"veda/tensors/lib64/libveda-tensors.so*",
+		"veda/tensors/libve/libveda-tensors.vso"
+	],
+	"requires-dist": [
+		"veda (>= @VEDA_VERSION_MIN@, < @VEDA_VERSION_MAX@)",
+		"tungl (>= @Tungl_VERSION_MIN@, < @Tungl_VERSION_MAX@)"
+	]
+}

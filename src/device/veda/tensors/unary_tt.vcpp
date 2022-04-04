@@ -1,0 +1,54 @@
+#include "internal.h"
+
+//------------------------------------------------------------------------------
+#define UnaryTT(NAME, ...)\
+	struct NAME {\
+		template<typename T>\
+		inline T operator()( const T a, const T b) const {\
+			return __VA_ARGS__;\
+		}\
+	}
+
+UnaryTT(Min, std::min(a, b));
+UnaryTT(Max, std::max(a, b));
+UnaryTT(Add, a + b);
+UnaryTT(Sub, a - b);
+UnaryTT(Mul, a * b);
+UnaryTT(Div, a / b);
+#undef UnaryTT
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline void veda_tensors_unary_tt(void* o, const void* x, const void* y, const size_t co, const size_t cx, const size_t cy, const int op) {
+	switch(op) {
+		case VEDA_TENSORS_UNARY_MIN:	veda_tensors_xy((T*)o, (const T*)x, (const T*)y, co, cx, cy, Min());	return;
+		case VEDA_TENSORS_UNARY_MAX:	veda_tensors_xy((T*)o, (const T*)x, (const T*)y, co, cx, cy, Max());	return;
+		case VEDA_TENSORS_UNARY_ADD:	veda_tensors_xy((T*)o, (const T*)x, (const T*)y, co, cx, cy, Add());	return;
+		case VEDA_TENSORS_UNARY_SUB:	veda_tensors_xy((T*)o, (const T*)x, (const T*)y, co, cx, cy, Sub());	return;
+		case VEDA_TENSORS_UNARY_MUL:	veda_tensors_xy((T*)o, (const T*)x, (const T*)y, co, cx, cy, Mul());	return;
+		case VEDA_TENSORS_UNARY_DIV:	veda_tensors_xy((T*)o, (const T*)x, (const T*)y, co, cx, cy, Div());	return;
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------
+template<typename S, typename T>
+inline void veda_tensors_unary_tt(void* o, const void* x, const void* y, const size_t co, const size_t cx, const size_t cy, const int op) {
+	switch(op) {
+		case VEDA_TENSORS_UNARY_ADD:	veda_tensors_xy((T*)o, (const T*)x, (const T*)y, co, cx, cy, Add());	return;
+		case VEDA_TENSORS_UNARY_SUB:	veda_tensors_xy((T*)o, (const T*)x, (const T*)y, co, cx, cy, Sub());	return;
+		case VEDA_TENSORS_UNARY_MUL:	veda_tensors_xy((T*)o, (const T*)x, (const T*)y, co, cx, cy, Mul());	return;
+		case VEDA_TENSORS_UNARY_DIV:	veda_tensors_xy((T*)o, (const T*)x, (const T*)y, co, cx, cy, Div());	return;
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------
+__global__ void veda_tensors_unary_tt(VEDAdeviceptr _o, VEDAdeviceptr _x, VEDAdeviceptr _y, const size_t co, const size_t cx, const size_t cy, const int op, const int type) {
+	auto o	= VEDAptr<void>(_o).ptr();
+	auto x	= VEDAptr<void>(_x).ptr();
+	auto y	= VEDAptr<void>(_y).ptr();
+	KERNEL_ALL(type, veda_tensors_unary_tt, o, x, y, co, cx, cy, op);
+}
+
+//------------------------------------------------------------------------------

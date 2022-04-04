@@ -1,0 +1,53 @@
+#include "internal.h"
+
+//------------------------------------------------------------------------------
+template<typename S, typename T, typename O>
+static inline typename std::enable_if<!std::is_fundamental<T>::value, T>::type convert(const O value) {
+	return {S(value), S(0)};
+}
+
+//------------------------------------------------------------------------------
+template<typename S, typename T, typename O>
+static inline typename std::enable_if<std::is_fundamental<T>::value, T>::type convert(const O value) {
+	return S(value);
+}
+
+//------------------------------------------------------------------------------
+template<typename S, typename T, typename O>
+inline void veda_tensors_convert(T* dst, const O* src, const size_t elements) {
+	for(size_t i = 0; i < elements; i++)
+		dst[i] = convert<S, T, O>(src[i]);
+}
+
+//------------------------------------------------------------------------------
+template<typename S, typename T>
+inline void veda_tensors_convert(void* dst, const void* src, const size_t elements, const int srcType) {
+	switch(srcType) {
+		case VEDA_TENSORS_DTYPE_S8:		veda_tensors_convert<S>((T*)dst, (const int8_t*)	src, elements);	return;
+		case VEDA_TENSORS_DTYPE_S16:	veda_tensors_convert<S>((T*)dst, (const int16_t*)	src, elements);	return;
+		case VEDA_TENSORS_DTYPE_S32:	veda_tensors_convert<S>((T*)dst, (const int32_t*)	src, elements);	return;
+		case VEDA_TENSORS_DTYPE_S64:	veda_tensors_convert<S>((T*)dst, (const int64_t*)	src, elements);	return;
+		case VEDA_TENSORS_DTYPE_U8:		veda_tensors_convert<S>((T*)dst, (const uint8_t*)	src, elements);	return;
+		case VEDA_TENSORS_DTYPE_U16:	veda_tensors_convert<S>((T*)dst, (const uint16_t*)	src, elements);	return;
+		case VEDA_TENSORS_DTYPE_U32:	veda_tensors_convert<S>((T*)dst, (const uint32_t*)	src, elements);	return;
+		case VEDA_TENSORS_DTYPE_U64:	veda_tensors_convert<S>((T*)dst, (const uint64_t*)	src, elements);	return;
+		case VEDA_TENSORS_DTYPE_F32:	veda_tensors_convert<S>((T*)dst, (const float*)		src, elements);	return;
+		case VEDA_TENSORS_DTYPE_F64:	veda_tensors_convert<S>((T*)dst, (const double*)	src, elements);	return;
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline void veda_tensors_convert(void* dst, const void* src, const size_t elements, const int srcType) {
+	veda_tensors_convert<T, T>(dst, src, elements, srcType);
+}
+
+//------------------------------------------------------------------------------
+__global__ void veda_tensors_convert(VEDAdeviceptr _dst, VEDAdeviceptr _src, const uint64_t elements, const int dstType, const int srcType) {
+	auto dst = VEDAptr<void>(_dst).ptr();
+	auto src = VEDAptr<void>(_src).ptr();
+	KERNEL_ALL(dstType, veda_tensors_convert, dst, src, elements, srcType);
+}
+
+//------------------------------------------------------------------------------

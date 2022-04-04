@@ -1,0 +1,31 @@
+#include "internal.h"
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline void veda_tensors_transpose(T* dst_, T* src_, const size_t sizeA, const size_t sizeB) {
+	veda_omp(sizeA, [=](const size_t min, const size_t max) {
+		auto dst = dst_ + min * sizeB;
+		auto src = src_ + min;
+		auto cnt = max - min;
+
+		#pragma _NEC novector
+		for(size_t A = 0; A < cnt; A++)
+			for(size_t B = 0; B < sizeB; B++)
+				dst[A * sizeB + B] = src[B * sizeA + A];
+	});
+}
+
+//------------------------------------------------------------------------------
+__global__ void veda_tensors_transpose(VEDAdeviceptr _dst, VEDAdeviceptr _src, const uint64_t sizeA, const uint64_t sizeB, const int bytes) {
+	auto dst = VEDAptr<void>(_dst).ptr();
+	auto src = VEDAptr<void>(_src).ptr();
+	switch(bytes) {
+		case 1:	veda_tensors_transpose((int8_t*) dst, (int8_t*) src, sizeA, sizeB);	return;
+		case 2:	veda_tensors_transpose((int16_t*)dst, (int16_t*)src, sizeA, sizeB);	return;
+		case 4:	veda_tensors_transpose((int32_t*)dst, (int32_t*)src, sizeA, sizeB);	return;
+		case 8:	veda_tensors_transpose((int64_t*)dst, (int64_t*)src, sizeA, sizeB);	return;
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------

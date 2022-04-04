@@ -1,0 +1,34 @@
+#include "internal.h"
+
+//------------------------------------------------------------------------------
+#define UnaryC(NAME, ...)\
+	template<typename S>\
+	struct NAME {\
+		template<typename T>\
+		inline S operator()(const T a) const {\
+			return __VA_ARGS__;\
+		}\
+	}
+
+UnaryC(Abs,			std::abs(a));
+UnaryC(Real,		a.x);
+UnaryC(Imag,		a.y);
+#undef UnaryC
+
+//------------------------------------------------------------------------------
+template<typename S, typename T>
+inline void veda_tensors_unary_c(void* o, const void* x, const size_t co, const size_t cx, const int op) {
+	switch(op) {
+		case VEDA_TENSORS_UNARY_ABS:	veda_tensors_x((S*)o, (const T*)x, co, cx, Abs <S>());	return;
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------
+__global__ void veda_tensors_unary_c(VEDAdeviceptr _o, VEDAdeviceptr _x, const size_t co, const size_t cx, const int op, const int type) {
+	auto o	= VEDAptr<void>(_o).ptr();
+	auto x	= VEDAptr<void>(_x).ptr();
+	KERNEL(type, KERNEL_STRUCTS(veda_tensors_unary_c, o, x, co, cx, op))
+}
+
+//------------------------------------------------------------------------------

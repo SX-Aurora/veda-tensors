@@ -1,0 +1,57 @@
+#include "internal.h"
+
+//------------------------------------------------------------------------------
+#define BinaryOp(NAME, ...)\
+	struct NAME {\
+		template<typename T>\
+		inline int8_t operator()(const T a, const T b) const {\
+			return __VA_ARGS__;\
+		}\
+	}
+
+BinaryOp(LT,	a < b);
+BinaryOp(LE,	a <= b);
+BinaryOp(GT,	a > b);
+BinaryOp(GE,	a >= b);
+BinaryOp(EQ,	a == b);
+BinaryOp(NE,	!(a == b)); // [SOL-NCC001]: a != b does not work correctly when vectorized and NANs appear!
+BinaryOp(AND,	(a != 0) && (b != 0));
+BinaryOp(OR,	(a != 0) || (b != 0));
+BinaryOp(XOR,	(a != 0) != (b != 0));
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline void veda_tensors_binary(int8_t* o, void* x, void* y, const size_t co, const size_t cx, const size_t cy, const int op) {
+	switch(op) {
+		case VEDA_TENSORS_BINARY_EQ:		veda_tensors_xy(o, (const T*)x, (const T*)y, co, cx, cy, EQ());		return;
+		case VEDA_TENSORS_BINARY_NE:		veda_tensors_xy(o, (const T*)x, (const T*)y, co, cx, cy, NE());		return;
+		case VEDA_TENSORS_BINARY_LT:		veda_tensors_xy(o, (const T*)x, (const T*)y, co, cx, cy, LT());		return;
+		case VEDA_TENSORS_BINARY_LE:		veda_tensors_xy(o, (const T*)x, (const T*)y, co, cx, cy, LE());		return;
+		case VEDA_TENSORS_BINARY_GT:		veda_tensors_xy(o, (const T*)x, (const T*)y, co, cx, cy, GT());		return;
+		case VEDA_TENSORS_BINARY_GE:		veda_tensors_xy(o, (const T*)x, (const T*)y, co, cx, cy, GE());		return;
+		case VEDA_TENSORS_BINARY_AND:		veda_tensors_xy(o, (const T*)x, (const T*)y, co, cx, cy, AND());	return;
+		case VEDA_TENSORS_BINARY_OR:		veda_tensors_xy(o, (const T*)x, (const T*)y, co, cx, cy, OR());		return;
+		case VEDA_TENSORS_BINARY_XOR:		veda_tensors_xy(o, (const T*)x, (const T*)y, co, cx, cy, XOR());	return;
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------
+template<typename S, typename T>
+inline void veda_tensors_binary(int8_t* o, void* x, void* y, const size_t co, const size_t cx, const size_t cy, const VEDATensors_binary_op op) {
+	switch(op) {
+		case VEDA_TENSORS_BINARY_EQ:	veda_tensors_xy(o, (const T*)x, (const T*)y, co, cx, cy, EQ());	return;
+		case VEDA_TENSORS_BINARY_NE:	veda_tensors_xy(o, (const T*)x, (const T*)y, co, cx, cy, NE());	return;
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------
+__global__ void veda_tensors_binary(VEDAdeviceptr _o, VEDAdeviceptr _x, VEDAdeviceptr _y, const size_t co, const size_t cx, const size_t cy, const int op, const int dtype) {
+	auto o	= VEDAptr<int8_t>	(_o).ptr();
+	auto x	= VEDAptr<void>		(_x).ptr();
+	auto y	= VEDAptr<void>		(_y).ptr();
+	KERNEL_ALL(dtype, veda_tensors_binary, o, x, y, co, cx, cy, (VEDATensors_binary_op)op);
+}
+
+//------------------------------------------------------------------------------

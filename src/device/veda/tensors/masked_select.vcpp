@@ -1,0 +1,30 @@
+#include "internal.h"
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline void veda_tensors_masked_select(T* out, const T* in, const int8_t* mask, const size_t outElements, const size_t elements) {
+	size_t index = 0;
+	for(size_t i = 0; i < elements; i++) {
+		if(mask[i]) {
+			out[index] = in[i];
+			index++;
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+__global__ void veda_tensors_masked_select(VEDAdeviceptr _out, VEDAdeviceptr _in, VEDAdeviceptr _mask, const size_t outElements, const size_t elements, const int bytes) {
+	auto out	= VEDAptr<void>(_out)		.ptr();
+	auto in		= VEDAptr<void>(_in)		.ptr();
+	auto mask	= VEDAptr<int8_t>(_mask)	.ptr();
+
+	switch(bytes) {
+		case 1:	veda_tensors_masked_select<int8_t> ((int8_t*) out, (int8_t*) in, mask, outElements, elements); return;
+		case 2:	veda_tensors_masked_select<int16_t>((int16_t*)out, (int16_t*)in, mask, outElements, elements); return;
+		case 4:	veda_tensors_masked_select<int32_t>((int32_t*)out, (int32_t*)in, mask, outElements, elements); return;
+		case 8:	veda_tensors_masked_select<int64_t>((int64_t*)out, (int64_t*)in, mask, outElements, elements); return;
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------

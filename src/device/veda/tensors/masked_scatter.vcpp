@@ -1,0 +1,26 @@
+#include "internal.h"
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline void veda_tensors_masked_scatter(T* out, const T* values, const int8_t* mask, const size_t elements) {
+	size_t idx = 0;
+	for(size_t i = 0; i < elements; i++)
+		if(mask[i]) 
+			out[i] = values[idx++];
+}
+
+//------------------------------------------------------------------------------
+__global__ void veda_tensors_masked_scatter(VEDAdeviceptr _out, VEDAdeviceptr _value, VEDAdeviceptr _mask, const size_t elements, const int bytes) {
+	auto out	= VEDAptr<void>	(_out)		.ptr();
+	auto value	= VEDAptr<void>	(_value)	.ptr();
+	auto mask	= VEDAptr<int8_t>(_mask)	.ptr();
+	switch(bytes) {
+		case 1:	veda_tensors_masked_scatter<int8_t> ((int8_t*) out, (const int8_t*) value, mask, elements); return;
+		case 2:	veda_tensors_masked_scatter<int16_t>((int16_t*)out, (const int16_t*)value, mask, elements); return;
+		case 4:	veda_tensors_masked_scatter<int32_t>((int32_t*)out, (const int32_t*)value, mask, elements); return;
+		case 8:	veda_tensors_masked_scatter<int64_t>((int64_t*)out, (const int64_t*)value, mask, elements); return;
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------
