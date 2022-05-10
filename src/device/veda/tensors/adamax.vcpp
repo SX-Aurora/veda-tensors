@@ -1,0 +1,53 @@
+#include "internal.h"
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline void veda_tensors_adamax(T* _var, T* _m, T* _v, const T* _grad, const T beta1_power, const T lr, const T beta1, const T beta2, const T epsilon, const size_t numel) {
+	veda_omp_simd(numel, [&](const size_t min, const size_t max) {
+		auto cnt	= max - min;
+		auto var	= _var + min;
+		auto m		= _m + min;
+		auto v		= _v + min;
+		auto grad	= _grad + min;
+
+		const auto beta1_			= T(1) - beta1;
+		const auto beta1_power_		= T(1) - beta1_power;
+		const auto lr_beta1_power	= lr / beta1_power_;
+		
+		for(auto i = 0; i < cnt; i++) {
+			const auto g_ = grad[i];
+			auto m_ = m[i];
+			auto v_ = v[i];
+			m_	+= (g_ - m_) * beta1_;
+			v_	 = std::max((beta2 * v_), std::abs(g_));
+
+			var[i] -= lr_beta1_power * (m_ / (v_ + epsilon));
+			
+			m[i] = m_;
+			v[i] = v_;
+		}
+	}, veda_omp_vlen<T>());
+}
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline void veda_tensors_adamax(void* var, void* m, void* v, const void* grad, const uint64_t* beta1_power, const uint64_t* lr, const uint64_t* beta1, const uint64_t* beta2, const uint64_t* epsilon, const size_t numel) {
+	veda_tensors_adamax((T*)var, (T*)m, (T*)v, (const T*)grad, *(const T*)beta1_power, *(const T*)lr, *(const T*)beta1, *(const T*)beta2, *(const T*)epsilon, numel);
+}
+
+//------------------------------------------------------------------------------
+__global__ void veda_tensors_adamax(ATTR_PTR(var), ATTR_PTR(m), ATTR_PTR(v), ATTR_PTR(grad), ATTR_SCALAR(beta1_power), ATTR_SCALAR(lr), ATTR_SCALAR(beta1), ATTR_SCALAR(beta2), ATTR_SCALAR(epsilon), const size_t numel, const int dtype) {
+	DEREF_PTR(var);
+	DEREF_PTR(m);
+	DEREF_PTR(v);
+	DEREF_PTR(grad);
+	DEREF_SCALAR(beta1_power);
+	DEREF_SCALAR(lr);
+	DEREF_SCALAR(beta1);
+	DEREF_SCALAR(beta2);
+	DEREF_SCALAR(epsilon);
+	
+	KERNEL_FLOAT(dtype, veda_tensors_adamax, var, m, v, grad, beta1_power, lr, beta1, beta2, epsilon, numel);
+}
+
+//------------------------------------------------------------------------------

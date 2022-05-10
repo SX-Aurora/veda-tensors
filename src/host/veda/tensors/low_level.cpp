@@ -2,6 +2,7 @@
 
 //------------------------------------------------------------------------------
 #define KERNEL(N) handle->kernel[VEDA_TENSORS_KERNEL_##N]
+#define SCALAR(S) S.U64_U64.x, S.U64_U64.y
 #define GUARD(MSG, ...)\
 	if(!handle) return VEDA_ERROR_INVALID_MODULE;\
 	L_TRACE("[ve:%i] " MSG, handle->idx, __VA_ARGS__);\
@@ -90,11 +91,17 @@ VEDA_TENSORS_API VEDAresult veda_tensors_ll_unary_b(VEDATensors_chandle handle, 
 //------------------------------------------------------------------------------
 VEDA_TENSORS_API VEDAresult veda_tensors_ll_unary_t(VEDATensors_chandle handle, VEDAdeviceptr o, VEDAdeviceptr x, const size_t co, const size_t cx, const VEDATensors_unary_op op, const VEDATensors_dtype dtype) {
 	switch(op) {
-		case VEDA_TENSORS_UNARY_ABS:
-		case VEDA_TENSORS_UNARY_FLOOR:
-		case VEDA_TENSORS_UNARY_CEIL:
-		case VEDA_TENSORS_UNARY_RECIPROCAL:
-		case VEDA_TENSORS_UNARY_SQRT:	break;
+		case VEDA_TENSORS_UNARY_ABS:		
+		case VEDA_TENSORS_UNARY_SQRT:		
+		case VEDA_TENSORS_UNARY_RSQRT:		
+		case VEDA_TENSORS_UNARY_SIN:		
+		case VEDA_TENSORS_UNARY_COS:		
+		case VEDA_TENSORS_UNARY_TAN:		
+		case VEDA_TENSORS_UNARY_EXP:		
+		case VEDA_TENSORS_UNARY_LOG:		
+		case VEDA_TENSORS_UNARY_CEIL:		
+		case VEDA_TENSORS_UNARY_FLOOR:		
+		case VEDA_TENSORS_UNARY_RECIPROCAL:	break;
 		default:	return VEDA_ERROR_NOT_IMPLEMENTED;
 	}
 
@@ -144,7 +151,7 @@ VEDA_TENSORS_API VEDAresult veda_tensors_ll_unary_tts(VEDATensors_chandle handle
 	}
 
 	GUARD("unary_tts(%p, %p, %p, %p, %llu, %llu, %llu, %s, %s)", o, x, y, &alpha, co, cx, cy, veda_tensors_get_unary(op), veda_tensors_get_dtype(dtype));
-	return vedaLaunchKernel(KERNEL(UNARY_TTS), 0, o, x, y, alpha.U64_U64.x, alpha.U64_U64.y, co, cx, cy, op, dtype);
+	return vedaLaunchKernel(KERNEL(UNARY_TTS), 0, o, x, y, SCALAR(alpha), co, cx, cy, op, dtype);
 }
 
 //------------------------------------------------------------------------------
@@ -156,7 +163,7 @@ VEDA_TENSORS_API VEDAresult veda_tensors_ll_unary_ttts(VEDATensors_chandle handl
 	}
 	
 	GUARD("unary_ttts(%p, %p, %p, %p, %p, %llu, %llu, %llu, %llu, %s, %s)", o, x, y, z, &alpha, co, cx, cy, cz, veda_tensors_get_unary(op), veda_tensors_get_dtype(dtype));
-	return vedaLaunchKernel(KERNEL(UNARY_TTTS), 0, o, x, y, z, alpha.U64_U64.x, alpha.U64_U64.y, co, cx, cy, cz, op, dtype);
+	return vedaLaunchKernel(KERNEL(UNARY_TTTS), 0, o, x, y, z, SCALAR(alpha), co, cx, cy, cz, op, dtype);
 }
 
 //------------------------------------------------------------------------------
@@ -237,6 +244,30 @@ VEDA_TENSORS_API VEDAresult veda_tensors_ll_reduce_scalar(VEDATensors_chandle ha
 	CVEDA(vedaMemcpyDtoHAsync(result, out, bytes, 0));
 	CVEDA(vedaMemFreeAsync(out, 0));
 	return vedaStreamSynchronize(0);	
+}
+
+//------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_ll_adadelta(VEDATensors_chandle handle, VEDAdeviceptr var, VEDAdeviceptr accum, VEDAdeviceptr accum_update, VEDAdeviceptr grad, VEDATensors_scalar rho, VEDATensors_scalar epsilon, VEDATensors_scalar lr, const size_t numel, const VEDATensors_dtype dtype) {
+	GUARD("adadelta(%p, %p, %p, %p, %p, %p, %p, %llu, %s)", var, accum, accum_update, grad, &rho, &epsilon, &lr, numel, veda_tensors_get_dtype(dtype));
+	return vedaLaunchKernel(KERNEL(ADADELTA), 0, var, accum, accum_update, grad, SCALAR(rho), SCALAR(epsilon), SCALAR(lr), numel, dtype);
+}
+
+//------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_ll_adagrad(VEDATensors_chandle handle, VEDAdeviceptr var, VEDAdeviceptr accum, VEDAdeviceptr grad, VEDATensors_scalar epsilon, VEDATensors_scalar lr, const bool update_slots, const size_t numel, const VEDATensors_dtype dtype) {
+	GUARD("adagrad(%p, %p, %p, %p, %p, %s, %llu, %s)", var, accum, grad, &epsilon, &lr, update_slots ? "true" : "false", numel, veda_tensors_get_dtype(dtype));
+	return vedaLaunchKernel(KERNEL(ADAGRAD), 0, var, accum, grad, SCALAR(epsilon), SCALAR(lr), int(update_slots), numel, dtype);
+}
+
+//------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_ll_adam(VEDATensors_chandle handle, VEDAdeviceptr var, VEDAdeviceptr m, VEDAdeviceptr v, VEDAdeviceptr grad, VEDATensors_scalar beta1_power, VEDATensors_scalar beta2_power, VEDATensors_scalar lr, VEDATensors_scalar beta1, VEDATensors_scalar beta2, VEDATensors_scalar epsilon, const bool use_nesterov, const size_t numel, const VEDATensors_dtype dtype) {
+	GUARD("adam(%p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %s, %llu, %s)", var, m, v, grad, &beta1_power, &beta2_power, &lr, &beta1, &beta2, &epsilon, use_nesterov ? "true" : "false", numel, veda_tensors_get_dtype(dtype));
+	return vedaLaunchKernel(KERNEL(ADAM), 0, var, m, v, grad, SCALAR(beta1_power), SCALAR(beta2_power), SCALAR(lr), SCALAR(beta1), SCALAR(beta2), SCALAR(epsilon), int(use_nesterov), numel, dtype);
+}
+
+//------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_ll_adamax(VEDATensors_chandle handle, VEDAdeviceptr var, VEDAdeviceptr m, VEDAdeviceptr v, VEDAdeviceptr grad, VEDATensors_scalar beta1_power, VEDATensors_scalar lr, VEDATensors_scalar beta1, VEDATensors_scalar beta2, VEDATensors_scalar epsilon, const size_t numel, const VEDATensors_dtype dtype) {
+	GUARD("adamax(%p, %p, %p, %p, %p, %p, %p, %p, %p, %llu, %s)", var, m, v, grad, &beta1_power, &lr, &beta1, &beta2, &epsilon, numel, veda_tensors_get_dtype(dtype));
+	return vedaLaunchKernel(KERNEL(ADAMAX), 0, var, m, v, grad, SCALAR(beta1_power), SCALAR(lr), SCALAR(beta1), SCALAR(beta2), SCALAR(epsilon), numel, dtype);
 }
 
 //------------------------------------------------------------------------------

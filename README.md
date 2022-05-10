@@ -8,6 +8,12 @@ complete.
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
 
+<tr><td>v0.1.1</td><td>
+<ul>
+	<li>Added AdaDelta, AdaGrad, Adam and AdaMax optimizer functions</li>
+</ul>
+</td></tr>
+
 <tr><td>v0.1.0</td><td>
 Initial Release
 </td></tr>

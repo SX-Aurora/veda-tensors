@@ -3,6 +3,10 @@
 #pragma once
 
 //------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult	veda_tensors_adadelta		(VEDATensors_chandle handle, VEDATensors_tensor* var, VEDATensors_tensor* accum, VEDATensors_tensor* accum_update, VEDATensors_tensor* grad, VEDATensors_scalar rho, VEDATensors_scalar epsilon, VEDATensors_scalar lr);
+VEDA_TENSORS_API VEDAresult	veda_tensors_adagrad		(VEDATensors_chandle handle, VEDATensors_tensor* var, VEDATensors_tensor* accum, VEDATensors_tensor* grad, VEDATensors_scalar epsilon, VEDATensors_scalar lr, const bool update_slots);
+VEDA_TENSORS_API VEDAresult	veda_tensors_adam			(VEDATensors_chandle handle, VEDATensors_tensor* var, VEDATensors_tensor* m, VEDATensors_tensor* v, VEDATensors_tensor* grad, VEDATensors_scalar beta1_power, VEDATensors_scalar beta2_power, VEDATensors_scalar lr, VEDATensors_scalar beta1, VEDATensors_scalar beta2, VEDATensors_scalar epsilon, const bool use_nesterov);
+VEDA_TENSORS_API VEDAresult	veda_tensors_adamax			(VEDATensors_chandle handle, VEDATensors_tensor* var, VEDATensors_tensor* m, VEDATensors_tensor* v, VEDATensors_tensor* grad, VEDATensors_scalar beta1_power, VEDATensors_scalar lr, VEDATensors_scalar beta1, VEDATensors_scalar beta2, VEDATensors_scalar epsilon);
 VEDA_TENSORS_API VEDAresult	veda_tensors_binary			(VEDATensors_chandle handle, VEDATensors_tensor* o, VEDATensors_tensor* x, VEDATensors_tensor* y, const VEDATensors_binary_op op);
 VEDA_TENSORS_API VEDAresult	veda_tensors_bitwise		(VEDATensors_chandle handle, VEDATensors_tensor* o, VEDATensors_tensor* x, VEDATensors_tensor* y, const VEDATensors_bitwise_op op);
 VEDA_TENSORS_API VEDAresult	veda_tensors_cat			(VEDATensors_chandle handle, const int inputCnt, VEDATensors_tensor* inputs, VEDATensors_tensor* output, const int dim);
@@ -10,10 +14,10 @@ VEDA_TENSORS_API VEDAresult	veda_tensors_convert		(VEDATensors_chandle handle, V
 VEDA_TENSORS_API VEDAresult	veda_tensors_copy			(VEDATensors_chandle handle, VEDATensors_tensor* o, VEDATensors_tensor* x);
 VEDA_TENSORS_API VEDAresult	veda_tensors_count			(VEDATensors_chandle handle, VEDATensors_tensor* in, size_t* cnt);
 VEDA_TENSORS_API VEDAresult	veda_tensors_fill			(VEDATensors_chandle handle, VEDATensors_tensor* ptr, const VEDATensors_scalar scalar);
-VEDA_TENSORS_API VEDAresult	veda_tensors_masked_select	(VEDATensors_chandle handle, VEDATensors_tensor* out, VEDATensors_tensor* in, VEDATensors_tensor* mask);
-VEDA_TENSORS_API VEDAresult	veda_tensors_masked_scatter	(VEDATensors_chandle handle, VEDATensors_tensor* out, VEDATensors_tensor* in, VEDATensors_tensor* mask);
 VEDA_TENSORS_API VEDAresult	veda_tensors_masked_fill	(VEDATensors_chandle handle, VEDATensors_tensor* out, const VEDATensors_scalar scalar, VEDATensors_tensor* mask);
 VEDA_TENSORS_API VEDAresult	veda_tensors_masked_fill_t	(VEDATensors_chandle handle, VEDATensors_tensor* out, VEDATensors_tensor* value, VEDATensors_tensor* mask);
+VEDA_TENSORS_API VEDAresult	veda_tensors_masked_scatter	(VEDATensors_chandle handle, VEDATensors_tensor* out, VEDATensors_tensor* in, VEDATensors_tensor* mask);
+VEDA_TENSORS_API VEDAresult	veda_tensors_masked_select	(VEDATensors_chandle handle, VEDATensors_tensor* out, VEDATensors_tensor* in, VEDATensors_tensor* mask);
 VEDA_TENSORS_API VEDAresult	veda_tensors_prefix_sum		(VEDATensors_chandle handle, VEDATensors_tensor* out, VEDATensors_tensor* carry, VEDATensors_tensor* in, const int axis, const int inclusive);
 VEDA_TENSORS_API VEDAresult	veda_tensors_print			(VEDATensors_chandle handle, VEDATensors_tensor* ptr);
 VEDA_TENSORS_API VEDAresult	veda_tensors_reduce			(VEDATensors_chandle handle, VEDATensors_tensor* out, VEDATensors_tensor* in, const VEDATensors_reduce_op op);

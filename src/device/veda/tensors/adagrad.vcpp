@@ -1,0 +1,40 @@
+#include "internal.h"
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline void veda_tensors_adagrad(T* _var, T* _accum, const T* _grad, const T epsilon, const T lr, const bool update_slots, const size_t numel) {
+	veda_omp_simd(numel, [&](const size_t min, const size_t max) {
+		auto cnt			= max - min;
+		auto var			= _var + min;
+		auto accum			= _accum + min;
+		auto grad			= _grad + min;
+
+		for(auto i = 0; i < cnt; i++) {
+			auto grad_	= grad[i];
+			auto accum_ = accum[i];
+			if(update_slots) {
+				accum_	+= (grad_ * grad_);
+				accum[i] = accum_;
+			}
+			var[i] -= grad_ * lr / (std::sqrt(accum_) + epsilon);
+		}
+	}, veda_omp_vlen<T>());
+}
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline void veda_tensors_adagrad(void* var, void* accum, const void* grad, const uint64_t* epsilon, const uint64_t* lr, const bool update_slots, const size_t numel) {
+	veda_tensors_adagrad((T*)var, (T*)accum, (const T*)grad, *(const T*)epsilon, *(const T*)lr, update_slots, numel);
+}
+
+//------------------------------------------------------------------------------
+__global__ void veda_tensors_adagrad(ATTR_PTR(var), ATTR_PTR(accum), ATTR_PTR(grad), ATTR_SCALAR(epsilon), ATTR_SCALAR(lr), const int update_slots, const size_t numel, const int dtype) {
+	DEREF_PTR(var);
+	DEREF_PTR(accum);
+	DEREF_PTR(grad);
+	DEREF_SCALAR(epsilon);
+	DEREF_SCALAR(lr);
+	KERNEL_FLOAT(dtype, veda_tensors_adagrad, var, accum, grad, epsilon, lr, update_slots, numel);
+}
+
+//------------------------------------------------------------------------------

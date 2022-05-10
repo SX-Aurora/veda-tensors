@@ -106,7 +106,11 @@ typedef enum {
 	VEDA_TENSORS_KERNEL_UNARY_TT			= 18,
 	VEDA_TENSORS_KERNEL_UNARY_TTS			= 19,
 	VEDA_TENSORS_KERNEL_UNARY_TTTS			= 20,
-	VEDA_TENSORS_KERNEL_CNT					= 21
+	VEDA_TENSORS_KERNEL_ADADELTA			= 21,
+	VEDA_TENSORS_KERNEL_ADAGRAD				= 22,
+	VEDA_TENSORS_KERNEL_ADAM				= 23,
+	VEDA_TENSORS_KERNEL_ADAMAX				= 24,
+	VEDA_TENSORS_KERNEL_CNT					= 25
 } VEDATensors_kernel;
 
 //------------------------------------------------------------------------------

@@ -112,13 +112,16 @@ VEDA_TENSORS_API const char* veda_tensors_get_bitwise(const VEDATensors_bitwise_
 //------------------------------------------------------------------------------
 VEDA_TENSORS_API const char* veda_tensors_get_kernel(const VEDATensors_kernel kernel) {
 	switch(kernel) {
+		case VEDA_TENSORS_KERNEL_ADADELTA:				return "VEDA_TENSORS_KERNEL_ADADELTA";
+		case VEDA_TENSORS_KERNEL_ADAGRAD:				return "VEDA_TENSORS_KERNEL_ADAGRAD";
+		case VEDA_TENSORS_KERNEL_ADAM:					return "VEDA_TENSORS_KERNEL_ADAM";
+		case VEDA_TENSORS_KERNEL_ADAMAX:				return "VEDA_TENSORS_KERNEL_ADAMAX";
 		case VEDA_TENSORS_KERNEL_BINARY:				return "VEDA_TENSORS_KERNEL_BINARY";
 		case VEDA_TENSORS_KERNEL_BITWISE:				return "VEDA_TENSORS_KERNEL_BITWISE";
 		case VEDA_TENSORS_KERNEL_CAT:					return "VEDA_TENSORS_KERNEL_CAT";
 		case VEDA_TENSORS_KERNEL_CONVERT:				return "VEDA_TENSORS_KERNEL_CONVERT";
 		case VEDA_TENSORS_KERNEL_COPY:					return "VEDA_TENSORS_KERNEL_COPY";
 		case VEDA_TENSORS_KERNEL_COUNT:					return "VEDA_TENSORS_KERNEL_COUNT";
-		case VEDA_TENSORS_KERNEL_TRANSPOSE:				return "VEDA_TENSORS_KERNEL_TRANSPOSE";
 		case VEDA_TENSORS_KERNEL_MASKED_FILL:			return "VEDA_TENSORS_KERNEL_MASKED_FILL";
 		case VEDA_TENSORS_KERNEL_MASKED_SCATTER:		return "VEDA_TENSORS_KERNEL_MASKED_SCATTER";
 		case VEDA_TENSORS_KERNEL_MASKED_SELECT:			return "VEDA_TENSORS_KERNEL_MASKED_SELECT";
@@ -127,6 +130,7 @@ VEDA_TENSORS_API const char* veda_tensors_get_kernel(const VEDATensors_kernel ke
 		case VEDA_TENSORS_KERNEL_REDUCE:				return "VEDA_TENSORS_KERNEL_REDUCE";
 		case VEDA_TENSORS_KERNEL_REDUCE_DIM:			return "VEDA_TENSORS_KERNEL_REDUCE_DIM";
 		case VEDA_TENSORS_KERNEL_SELECT:				return "VEDA_TENSORS_KERNEL_SELECT";
+		case VEDA_TENSORS_KERNEL_TRANSPOSE:				return "VEDA_TENSORS_KERNEL_TRANSPOSE";
 		case VEDA_TENSORS_KERNEL_UNARY_B:				return "VEDA_TENSORS_KERNEL_UNARY_B";
 		case VEDA_TENSORS_KERNEL_UNARY_C:				return "VEDA_TENSORS_KERNEL_UNARY_C";
 		case VEDA_TENSORS_KERNEL_UNARY_T:				return "VEDA_TENSORS_KERNEL_UNARY_T";
@@ -140,13 +144,16 @@ VEDA_TENSORS_API const char* veda_tensors_get_kernel(const VEDATensors_kernel ke
 //------------------------------------------------------------------------------
 VEDA_TENSORS_API const char* veda_tensors_get_kernel_func(const VEDATensors_kernel kernel) {
 	switch(kernel) {
+		case VEDA_TENSORS_KERNEL_ADADELTA:			return "veda_tensors_adadelta";
+		case VEDA_TENSORS_KERNEL_ADAGRAD:			return "veda_tensors_adagrad";
+		case VEDA_TENSORS_KERNEL_ADAM:				return "veda_tensors_adam";
+		case VEDA_TENSORS_KERNEL_ADAMAX:			return "veda_tensors_adamax";
 		case VEDA_TENSORS_KERNEL_BINARY:			return "veda_tensors_binary";
 		case VEDA_TENSORS_KERNEL_BITWISE:			return "veda_tensors_bitwise";
 		case VEDA_TENSORS_KERNEL_CAT:				return "veda_tensors_cat";
 		case VEDA_TENSORS_KERNEL_CONVERT:			return "veda_tensors_convert";
 		case VEDA_TENSORS_KERNEL_COPY:				return "veda_tensors_copy";
 		case VEDA_TENSORS_KERNEL_COUNT:				return "veda_tensors_count";
-		case VEDA_TENSORS_KERNEL_TRANSPOSE:			return "veda_tensors_transpose";
 		case VEDA_TENSORS_KERNEL_MASKED_FILL:		return "veda_tensors_masked_fill";
 		case VEDA_TENSORS_KERNEL_MASKED_SCATTER:	return "veda_tensors_masked_scatter";
 		case VEDA_TENSORS_KERNEL_MASKED_SELECT:		return "veda_tensors_masked_select";
@@ -155,6 +162,7 @@ VEDA_TENSORS_API const char* veda_tensors_get_kernel_func(const VEDATensors_kern
 		case VEDA_TENSORS_KERNEL_REDUCE:			return "veda_tensors_reduce";
 		case VEDA_TENSORS_KERNEL_REDUCE_DIM:		return "veda_tensors_reduce_dim";
 		case VEDA_TENSORS_KERNEL_SELECT:			return "veda_tensors_select";
+		case VEDA_TENSORS_KERNEL_TRANSPOSE:			return "veda_tensors_transpose";
 		case VEDA_TENSORS_KERNEL_UNARY_B:			return "veda_tensors_unary_b";
 		case VEDA_TENSORS_KERNEL_UNARY_C:			return "veda_tensors_unary_c";
 		case VEDA_TENSORS_KERNEL_UNARY_T:			return "veda_tensors_unary_t";

@@ -349,3 +349,43 @@ VEDA_TENSORS_API void veda_tensors_debug(VEDATensors_tensor* t) {
 }
 
 //------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_adadelta(VEDATensors_chandle handle, VEDATensors_tensor* var, VEDATensors_tensor* accum, VEDATensors_tensor* accum_update, VEDATensors_tensor* grad, VEDATensors_scalar rho, VEDATensors_scalar epsilon, VEDATensors_scalar lr) {
+	VERIFY(
+		verify_tensors		(var, accum, accum_update, grad);
+		verify_same_dtype	(var, accum, accum_update, grad);
+		verify_same_shapes	(var, accum, accum_update, grad);
+	)
+	return veda_tensors_ll_adadelta(handle, var->ptr, accum->ptr, accum_update->ptr, grad->ptr, rho, epsilon, lr, var->numel, var->dtype);
+}
+
+//------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_adagrad(VEDATensors_chandle handle, VEDATensors_tensor* var, VEDATensors_tensor* accum, VEDATensors_tensor* grad, VEDATensors_scalar epsilon, VEDATensors_scalar lr, const bool update_slots) {
+	VERIFY(
+		verify_tensors		(var, accum, grad);
+		verify_same_dtype	(var, accum, grad);
+		verify_same_shapes	(var, accum, grad);
+	)
+	return veda_tensors_ll_adagrad(handle, var->ptr, accum->ptr, grad->ptr, epsilon, lr, update_slots, var->numel, var->dtype);
+}
+
+//------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_adam(VEDATensors_chandle handle, VEDATensors_tensor* var, VEDATensors_tensor* m, VEDATensors_tensor* v, VEDATensors_tensor* grad, VEDATensors_scalar beta1_power, VEDATensors_scalar beta2_power, VEDATensors_scalar lr, VEDATensors_scalar beta1, VEDATensors_scalar beta2, VEDATensors_scalar epsilon, const bool use_nesterov) {
+	VERIFY(
+		verify_tensors		(var, m, v, grad);
+		verify_same_dtype	(var, m, v, grad);
+		verify_same_shapes	(var, m, v, grad);
+	)
+	return veda_tensors_ll_adam(handle, var->ptr, m->ptr, v->ptr, grad->ptr, beta1_power, beta2_power, lr, beta1, beta2, epsilon, use_nesterov, var->numel, var->dtype);
+}
+
+//------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_adamax(VEDATensors_chandle handle, VEDATensors_tensor* var, VEDATensors_tensor* m, VEDATensors_tensor* v, VEDATensors_tensor* grad, VEDATensors_scalar beta1_power, VEDATensors_scalar lr, VEDATensors_scalar beta1, VEDATensors_scalar beta2, VEDATensors_scalar epsilon) {
+	VERIFY(
+		verify_tensors		(var, m, v, grad);
+		verify_same_dtype	(var, m, v, grad);
+		verify_same_shapes	(var, m, v, grad);
+	)
+	return veda_tensors_ll_adamax(handle, var->ptr, m->ptr, v->ptr, grad->ptr, beta1_power, lr, beta1, beta2, epsilon, var->numel, var->dtype);
+}
+
+//------------------------------------------------------------------------------
