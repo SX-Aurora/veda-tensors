@@ -101,7 +101,8 @@ VEDA_TENSORS_API VEDAresult veda_tensors_ll_unary_t(VEDATensors_chandle handle, 
 		case VEDA_TENSORS_UNARY_LOG:		
 		case VEDA_TENSORS_UNARY_CEIL:		
 		case VEDA_TENSORS_UNARY_FLOOR:		
-		case VEDA_TENSORS_UNARY_RECIPROCAL:	break;
+		case VEDA_TENSORS_UNARY_RECIPROCAL:	
+		case VEDA_TENSORS_UNARY_NEG:		break;
 		default:	return VEDA_ERROR_NOT_IMPLEMENTED;
 	}
 
@@ -127,6 +128,23 @@ VEDA_TENSORS_API VEDAresult veda_tensors_ll_unary_c(VEDATensors_chandle handle, 
 }
 
 //------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_ll_unary_ts(VEDATensors_chandle handle, VEDAdeviceptr o, VEDAdeviceptr x, const VEDATensors_scalar alpha, const size_t co, const size_t cx, const VEDATensors_unary_op op, const VEDATensors_dtype dtype) {
+	switch(op) {
+		case VEDA_TENSORS_UNARY_MIN:
+		case VEDA_TENSORS_UNARY_MAX:
+		case VEDA_TENSORS_UNARY_ADD:
+		case VEDA_TENSORS_UNARY_SUB:
+		case VEDA_TENSORS_UNARY_DIV:
+		case VEDA_TENSORS_UNARY_POW:
+		case VEDA_TENSORS_UNARY_MUL:	break;
+		default:	return VEDA_ERROR_NOT_IMPLEMENTED;
+	}
+	
+	GUARD("unary_ts(%p, %p, %p, %llu, %llu, %s, %s)", o, x, &alpha, co, cx, veda_tensors_get_unary(op), veda_tensors_get_dtype(dtype));
+	return vedaLaunchKernel(KERNEL(UNARY_TS), 0, o, x, SCALAR(alpha), co, cx, op, dtype);
+}
+
+//------------------------------------------------------------------------------
 VEDA_TENSORS_API VEDAresult veda_tensors_ll_unary_tt(VEDATensors_chandle handle, VEDAdeviceptr o, VEDAdeviceptr x, VEDAdeviceptr y, const size_t co, const size_t cx, const size_t cy, const VEDATensors_unary_op op, const VEDATensors_dtype dtype) {
 	switch(op) {
 		case VEDA_TENSORS_UNARY_MIN:
@@ -134,6 +152,7 @@ VEDA_TENSORS_API VEDAresult veda_tensors_ll_unary_tt(VEDATensors_chandle handle,
 		case VEDA_TENSORS_UNARY_ADD:
 		case VEDA_TENSORS_UNARY_SUB:
 		case VEDA_TENSORS_UNARY_DIV:
+		case VEDA_TENSORS_UNARY_POW:
 		case VEDA_TENSORS_UNARY_MUL:	break;
 		default:	return VEDA_ERROR_NOT_IMPLEMENTED;
 	}
@@ -143,15 +162,42 @@ VEDA_TENSORS_API VEDAresult veda_tensors_ll_unary_tt(VEDATensors_chandle handle,
 }
 
 //------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_ll_unary_tss(VEDATensors_chandle handle, VEDAdeviceptr o, VEDAdeviceptr x, const VEDATensors_scalar alpha, const VEDATensors_scalar beta, const size_t co, const size_t cx, const VEDATensors_unary_op op, const VEDATensors_dtype dtype) {
+	switch(op) {
+		case VEDA_TENSORS_UNARY_ADD:
+		case VEDA_TENSORS_UNARY_SUB:
+		case VEDA_TENSORS_UNARY_CLAMP:	break;
+		default:	return VEDA_ERROR_NOT_IMPLEMENTED;
+	}
+
+	GUARD("unary_tss(%p, %p, %p, %p, %llu, %llu, %s, %s)", o, x, &alpha, &beta, co, cx, veda_tensors_get_unary(op), veda_tensors_get_dtype(dtype));
+	return vedaLaunchKernel(KERNEL(UNARY_TSS), 0, o, x, SCALAR(alpha), SCALAR(beta), co, cx, op, dtype);
+}
+
+//------------------------------------------------------------------------------
 VEDA_TENSORS_API VEDAresult veda_tensors_ll_unary_tts(VEDATensors_chandle handle, VEDAdeviceptr o, VEDAdeviceptr x, VEDAdeviceptr y, const VEDATensors_scalar alpha, const size_t co, const size_t cx, const size_t cy, const VEDATensors_unary_op op, const VEDATensors_dtype dtype) {
 	switch(op) {
 		case VEDA_TENSORS_UNARY_ADD:
-		case VEDA_TENSORS_UNARY_SUB:	break;
+		case VEDA_TENSORS_UNARY_SUB:	
+		case VEDA_TENSORS_UNARY_CLAMP:	break;
 		default:	return VEDA_ERROR_NOT_IMPLEMENTED;
 	}
 
 	GUARD("unary_tts(%p, %p, %p, %p, %llu, %llu, %llu, %s, %s)", o, x, y, &alpha, co, cx, cy, veda_tensors_get_unary(op), veda_tensors_get_dtype(dtype));
 	return vedaLaunchKernel(KERNEL(UNARY_TTS), 0, o, x, y, SCALAR(alpha), co, cx, cy, op, dtype);
+}
+
+//------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_ll_unary_ttt(VEDATensors_chandle handle, VEDAdeviceptr o, VEDAdeviceptr x, VEDAdeviceptr y, VEDAdeviceptr z, const size_t co, const size_t cx, const size_t cy, const size_t cz, const VEDATensors_unary_op op, const VEDATensors_dtype dtype) {
+	switch(op) {
+		case VEDA_TENSORS_UNARY_ADD:
+		case VEDA_TENSORS_UNARY_SUB:	
+		case VEDA_TENSORS_UNARY_CLAMP:	break;
+		default:	return VEDA_ERROR_NOT_IMPLEMENTED;
+	}
+
+	GUARD("unary_tts(%p, %p, %p, %p, %llu, %llu, %llu, %llu %s, %s)", o, x, y, z, co, cx, cy, cz, veda_tensors_get_unary(op), veda_tensors_get_dtype(dtype));
+	return vedaLaunchKernel(KERNEL(UNARY_TTT), 0, o, x, y, z, co, cx, cy, cz, op, dtype);
 }
 
 //------------------------------------------------------------------------------
@@ -170,6 +216,12 @@ VEDA_TENSORS_API VEDAresult veda_tensors_ll_unary_ttts(VEDATensors_chandle handl
 VEDA_TENSORS_API VEDAresult veda_tensors_ll_binary(VEDATensors_chandle handle, VEDAdeviceptr o, VEDAdeviceptr x, VEDAdeviceptr y, const size_t oc, const size_t ox, const size_t oy, const VEDATensors_binary_op op, const VEDATensors_dtype dtype) {
 	GUARD("binary(%p, %p, %p, %llu, %llu, %llu, %s, %s)", o, x, y, oc, ox, oy, veda_tensors_get_binary(op), veda_tensors_get_dtype(dtype));
 	return vedaLaunchKernel(KERNEL(BINARY), 0, o, x, y, oc, ox, oy, op, dtype);
+}
+
+//------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_ll_binary_s(VEDATensors_chandle handle, VEDAdeviceptr o, VEDAdeviceptr x, const VEDATensors_scalar alpha, const size_t oc, const size_t ox, const VEDATensors_binary_op op, const VEDATensors_dtype dtype) {
+	GUARD("binary_s(%p, %p, %p, %llu, %llu, %s, %s)", o, x, &alpha, oc, ox, veda_tensors_get_binary(op), veda_tensors_get_dtype(dtype));
+	return vedaLaunchKernel(KERNEL(BINARY_S), 0, o, x, SCALAR(alpha), oc, ox, op, dtype);
 }
 
 //------------------------------------------------------------------------------
@@ -231,6 +283,12 @@ VEDA_TENSORS_API VEDAresult veda_tensors_ll_reduce(VEDATensors_chandle handle, V
 VEDA_TENSORS_API VEDAresult veda_tensors_ll_reduce_dim(VEDATensors_chandle handle, VEDAdeviceptr values, VEDAdeviceptr indices, VEDAdeviceptr in, const size_t left, const size_t center, const size_t right, const VEDATensors_reduce_op op, const VEDATensors_dtype dtype) {
 	GUARD("reduce_dim(%p, %p, %p, %llu, %llu, %llu, %s, %s)", values, indices, in, left, center, right, veda_tensors_get_reduce(op), veda_tensors_get_dtype(dtype));
 	return vedaLaunchKernel(KERNEL(REDUCE_DIM), 0, values, indices, in, left, center, right, op, dtype);
+}
+
+//------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_ll_softmax(VEDATensors_chandle handle, VEDAdeviceptr o, VEDAdeviceptr x, const size_t left, const size_t center, const size_t right, const VEDATensors_softmax_op op, const VEDATensors_dtype dtype) {
+	GUARD("softmax(%p, %p, %llu, %llu, %llu, %s, %s)", o, x, left, center, right, veda_tensors_get_softmax(op), veda_tensors_get_dtype(dtype));
+	return vedaLaunchKernel(KERNEL(SOFTMAX), 0, o, x, left, center, right, op, dtype);
 }
 
 //------------------------------------------------------------------------------
@@ -328,6 +386,12 @@ VEDA_TENSORS_API VEDAresult veda_tensors_ll_cat(VEDATensors_chandle handle, cons
 	CVEDA(vedaMemFreeAsync(d_center, 0));
 
 	return VEDA_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult	veda_tensors_ll_where(VEDATensors_chandle handle, VEDAdeviceptr o, VEDAdeviceptr x, VEDAdeviceptr y, VEDAdeviceptr z, const size_t co, const size_t cx, const size_t cy, const size_t cz, const VEDATensors_dtype ctype, const VEDATensors_dtype dtype) {
+	GUARD("where(%p, %p, %p, %p, %llu, %llu, %llu, %llu, %s, %s)", o, x, y, z, co, cx, cy, cz, veda_tensors_get_dtype(ctype), veda_tensors_get_dtype(dtype));
+	return vedaLaunchKernel(KERNEL(WHERE), 0, o, x, y, z, co, cx, cy, cz, veda_tensors_dtype_bytes(ctype), veda_tensors_dtype_bytes(dtype));
 }
 
 //------------------------------------------------------------------------------

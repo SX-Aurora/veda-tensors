@@ -6,8 +6,8 @@
 #define CHECK_DIMS(A, B)	if(A != 1 && A != B)	FVEDA(VEDA_ERROR_NOT_IMPLEMENTED)
 
 //------------------------------------------------------------------------------
-template<typename TO, typename TX, typename Op>
-inline void veda_tensors_x(TO* _o, const TX* _x, const size_t co, const size_t cx, const Op op) {
+template<typename TO, typename TX, typename OP>
+inline void veda_tensors_x(TO* _o, const TX* _x, const size_t co, const size_t cx, const OP op) {
 	CHECK_DIMS(cx, co);
 
 	if(cx == 1) {
@@ -24,8 +24,9 @@ inline void veda_tensors_x(TO* _o, const TX* _x, const size_t co, const size_t c
 			auto cnt = max - min;
 			auto o = _o + min;
 			auto x = _x + min;
-			for(auto i = 0; i < cnt; i++)
+			for(auto i = 0; i < cnt; i++) {
 				o[i] = op(x[i]);
+			}
 		}, veda_omp_vlen<TO>());
 	}
 }
@@ -52,8 +53,9 @@ inline void veda_tensors_xy(TO* _o, const TX* _x, const TY* _y, const size_t co,
 				auto cnt = max - min;
 				auto o = _o + min;
 				auto y = _y + min;
-				for(auto i = 0; i < cnt; i++)
+				for(auto i = 0; i < cnt; i++) {
 					o[i] = op(x, y[i]);
+				}
 			}, veda_omp_vlen<TO>());
 		}
 	} else {
@@ -63,8 +65,9 @@ inline void veda_tensors_xy(TO* _o, const TX* _x, const TY* _y, const size_t co,
 				auto cnt = max - min;
 				auto o = _o + min;
 				auto x = _x + min;
-				for(auto i = 0; i < cnt; i++)
+				for(auto i = 0; i < cnt; i++) {
 					o[i] = op(x[i], y);
+				}
 			}, veda_omp_vlen<TO>());
 		} else {
 			veda_omp_simd(co, [&](const size_t min, const size_t max) {
@@ -72,8 +75,9 @@ inline void veda_tensors_xy(TO* _o, const TX* _x, const TY* _y, const size_t co,
 				auto o = _o + min;
 				auto x = _x + min;
 				auto y = _y + min;
-				for(auto i = 0; i < cnt; i++)
+				for(auto i = 0; i < cnt; i++) {
 					o[i] = op(x[i], y[i]);
+				}
 			}, veda_omp_vlen<TO>());
 		}
 	}
@@ -104,8 +108,9 @@ inline void veda_tensors_xyz(TO* _o, const TX* _x, const TY* _y, const TZ* _z, c
 					auto cnt = max - min;
 					auto o = _o + min;
 					auto z = _z + min;
-					for(auto i = 0; i < cnt; i++)
+					for(auto i = 0; i < cnt; i++) {
 						o[i] = op(x, y, z[i]);
+					}
 				}, veda_omp_vlen<TO>());
 			}
 		} else {
@@ -115,8 +120,9 @@ inline void veda_tensors_xyz(TO* _o, const TX* _x, const TY* _y, const TZ* _z, c
 					auto cnt = max - min;
 					auto o = _o + min;
 					auto y = _y + min;
-					for(auto i = 0; i < cnt; i++)
+					for(auto i = 0; i < cnt; i++) {
 						o[i] = op(x, y[i], z);
+					}
 				}, veda_omp_vlen<TO>());
 			} else {
 				veda_omp_simd(co, [&](const size_t min, const size_t max) {
@@ -124,8 +130,9 @@ inline void veda_tensors_xyz(TO* _o, const TX* _x, const TY* _y, const TZ* _z, c
 					auto o = _o + min;
 					auto y = _y + min;
 					auto z = _z + min;
-					for(auto i = 0; i < cnt; i++)
+					for(auto i = 0; i < cnt; i++) {
 						o[i] = op(x, y[i], z[i]);
+					}
 				}, veda_omp_vlen<TO>());
 			}
 		}
@@ -138,8 +145,9 @@ inline void veda_tensors_xyz(TO* _o, const TX* _x, const TY* _y, const TZ* _z, c
 					auto cnt = max - min;
 					auto o = _o + min;
 					auto x = _x + min;
-					for(auto i = 0; i < cnt; i++)
+					for(auto i = 0; i < cnt; i++) {
 						o[i] = op(x[i], y, z);
+					}
 				}, veda_omp_vlen<TO>());
 			} else {
 				veda_omp_simd(co, [&](const size_t min, const size_t max) {
@@ -147,8 +155,9 @@ inline void veda_tensors_xyz(TO* _o, const TX* _x, const TY* _y, const TZ* _z, c
 					auto o = _o + min;
 					auto x = _x + min;
 					auto z = _z + min;
-					for(auto i = 0; i < cnt; i++)
+					for(auto i = 0; i < cnt; i++) {
 						o[i] = op(x[i], y, z[i]);
+					}
 				}, veda_omp_vlen<TO>());
 			}
 		} else {
@@ -159,8 +168,9 @@ inline void veda_tensors_xyz(TO* _o, const TX* _x, const TY* _y, const TZ* _z, c
 					auto o = _o + min;
 					auto x = _x + min;
 					auto y = _y + min;
-					for(auto i = 0; i < cnt; i++)
+					for(auto i = 0; i < cnt; i++) {
 						o[i] = op(x[i], y[i], z);
+					}
 				}, veda_omp_vlen<TO>());
 			} else {
 				veda_omp_simd(co, [&](const size_t min, const size_t max) {
@@ -169,8 +179,9 @@ inline void veda_tensors_xyz(TO* _o, const TX* _x, const TY* _y, const TZ* _z, c
 					auto x = _x + min;
 					auto y = _y + min;
 					auto z = _z + min;
-					for(auto i = 0; i < cnt; i++)
+					for(auto i = 0; i < cnt; i++) {
 						o[i] = op(x[i], y[i], z[i]);
+					}
 				}, veda_omp_vlen<TO>());
 			}
 		}
@@ -205,8 +216,9 @@ inline void veda_tensors_xyzw(TO* _o, const TX* _x, const TY* _y, const TZ* _z, 
 						auto cnt = max - min;
 						auto o = _o + min;
 						auto w = _w + min;
-						for(auto i = 0; i < cnt; i++)
+						for(auto i = 0; i < cnt; i++) {
 							o[i] = op(x, y, z, w[i]);
+						}
 					}, veda_omp_vlen<TO>());
 				}
 			} else {
@@ -216,8 +228,9 @@ inline void veda_tensors_xyzw(TO* _o, const TX* _x, const TY* _y, const TZ* _z, 
 						auto cnt = max - min;
 						auto o = _o + min;
 						auto z = _z + min;
-						for(auto i = 0; i < cnt; i++)
+						for(auto i = 0; i < cnt; i++) {
 							o[i] = op(x, y, z[i], w);
+						}
 					}, veda_omp_vlen<TO>());
 				} else {
 					veda_omp_simd(co, [&](const size_t min, const size_t max) {
@@ -225,8 +238,9 @@ inline void veda_tensors_xyzw(TO* _o, const TX* _x, const TY* _y, const TZ* _z, 
 						auto o = _o + min;
 						auto z = _z + min;
 						auto w = _w + min;
-						for(auto i = 0; i < cnt; i++)
+						for(auto i = 0; i < cnt; i++) {
 							o[i] = op(x, y, z[i], w[i]);
+						}
 					}, veda_omp_vlen<TO>());
 				}
 			}
@@ -239,8 +253,9 @@ inline void veda_tensors_xyzw(TO* _o, const TX* _x, const TY* _y, const TZ* _z, 
 						auto cnt = max - min;
 						auto o = _o + min;
 						auto y = _y + min;
-						for(auto i = 0; i < cnt; i++)
+						for(auto i = 0; i < cnt; i++) {
 							o[i] = op(x, y[i], z, w);
+						}
 					}, veda_omp_vlen<TO>());
 				} else {
 					veda_omp_simd(co, [&](const size_t min, const size_t max) {
@@ -248,8 +263,9 @@ inline void veda_tensors_xyzw(TO* _o, const TX* _x, const TY* _y, const TZ* _z, 
 						auto o = _o + min;
 						auto y = _y + min;
 						auto w = _w + min;
-						for(auto i = 0; i < cnt; i++)
+						for(auto i = 0; i < cnt; i++) {
 							o[i] = op(x, y[i], z, w[i]);
+						}
 					}, veda_omp_vlen<TO>());
 				}
 			} else {
@@ -260,8 +276,9 @@ inline void veda_tensors_xyzw(TO* _o, const TX* _x, const TY* _y, const TZ* _z, 
 						auto o = _o + min;
 						auto y = _y + min;
 						auto z = _z + min;
-						for(auto i = 0; i < cnt; i++)
+						for(auto i = 0; i < cnt; i++) {
 							o[i] = op(x, y[i], z[i], w);
+						}
 					}, veda_omp_vlen<TO>());
 				} else {
 					veda_omp_simd(co, [&](const size_t min, const size_t max) {
@@ -270,8 +287,9 @@ inline void veda_tensors_xyzw(TO* _o, const TX* _x, const TY* _y, const TZ* _z, 
 						auto y = _y + min;
 						auto z = _z + min;
 						auto w = _w + min;
-						for(auto i = 0; i < cnt; i++)
+						for(auto i = 0; i < cnt; i++) {
 							o[i] = op(x, y[i], z[i], w[i]);
+						}
 					}, veda_omp_vlen<TO>());
 				}
 			}
@@ -287,8 +305,9 @@ inline void veda_tensors_xyzw(TO* _o, const TX* _x, const TY* _y, const TZ* _z, 
 						auto cnt = max - min;
 						auto o = _o + min;
 						auto x = _x + min;
-						for(auto i = 0; i < cnt; i++)
+						for(auto i = 0; i < cnt; i++) {
 							o[i] = op(x[i], y, z, w);
+						}
 					}, veda_omp_vlen<TO>());
 				} else {
 					veda_omp_simd(co, [&](const size_t min, const size_t max) {
@@ -296,8 +315,9 @@ inline void veda_tensors_xyzw(TO* _o, const TX* _x, const TY* _y, const TZ* _z, 
 						auto o = _o + min;
 						auto x = _x + min;
 						auto w = _w + min;
-						for(auto i = 0; i < cnt; i++)
+						for(auto i = 0; i < cnt; i++) {
 							o[i] = op(x[i], y, z, w[i]);
+						}
 					}, veda_omp_vlen<TO>());
 				}
 			} else {
@@ -308,8 +328,9 @@ inline void veda_tensors_xyzw(TO* _o, const TX* _x, const TY* _y, const TZ* _z, 
 						auto o = _o + min;
 						auto x = _x + min;
 						auto z = _z + min;
-						for(auto i = 0; i < cnt; i++)
+						for(auto i = 0; i < cnt; i++) {
 							o[i] = op(x[i], y, z[i], w);
+						}
 					}, veda_omp_vlen<TO>());
 				} else {
 					veda_omp_simd(co, [&](const size_t min, const size_t max) {
@@ -318,8 +339,9 @@ inline void veda_tensors_xyzw(TO* _o, const TX* _x, const TY* _y, const TZ* _z, 
 						auto x = _x + min;
 						auto z = _z + min;
 						auto w = _w + min;
-						for(auto i = 0; i < cnt; i++)
+						for(auto i = 0; i < cnt; i++) {
 							o[i] = op(x[i], y, z[i], w[i]);
+						}
 					}, veda_omp_vlen<TO>());
 				}
 			}
@@ -333,8 +355,9 @@ inline void veda_tensors_xyzw(TO* _o, const TX* _x, const TY* _y, const TZ* _z, 
 						auto o = _o + min;
 						auto x = _x + min;
 						auto y = _y + min;
-						for(auto i = 0; i < cnt; i++)
+						for(auto i = 0; i < cnt; i++) {
 							o[i] = op(x[i], y[i], z, w);
+						}
 					}, veda_omp_vlen<TO>());
 				} else {
 					veda_omp_simd(co, [&](const size_t min, const size_t max) {
@@ -343,8 +366,9 @@ inline void veda_tensors_xyzw(TO* _o, const TX* _x, const TY* _y, const TZ* _z, 
 						auto x = _x + min;
 						auto y = _y + min;
 						auto w = _w + min;
-						for(auto i = 0; i < cnt; i++)
+						for(auto i = 0; i < cnt; i++) {
 							o[i] = op(x[i], y[i], z, w[i]);
+						}
 					}, veda_omp_vlen<TO>());
 				}
 			} else {
@@ -356,8 +380,9 @@ inline void veda_tensors_xyzw(TO* _o, const TX* _x, const TY* _y, const TZ* _z, 
 						auto x = _x + min;
 						auto y = _y + min;
 						auto z = _z + min;
-						for(auto i = 0; i < cnt; i++)
+						for(auto i = 0; i < cnt; i++) {
 							o[i] = op(x[i], y[i], z[i], w);
+						}
 					}, veda_omp_vlen<TO>());
 				} else {
 					veda_omp_simd(co, [&](const size_t min, const size_t max) {
@@ -367,8 +392,9 @@ inline void veda_tensors_xyzw(TO* _o, const TX* _x, const TY* _y, const TZ* _z, 
 						auto y = _y + min;
 						auto z = _z + min;
 						auto w = _w + min;
-						for(auto i = 0; i < cnt; i++)
+						for(auto i = 0; i < cnt; i++) {
 							o[i] = op(x[i], y[i], z[i], w[i]);
+						}
 					}, veda_omp_vlen<TO>());
 				}
 			}

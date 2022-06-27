@@ -1,0 +1,71 @@
+template<bool usesLog>
+void veda_tensors_softmax(T* _out, const T* _in, const size_t left, const size_t center, const size_t right) {
+	if(right == 1) {
+		veda_omp(left, [&](const size_t min, const size_t max) {
+			_Pragma(VEDA_TENSORS_NO_VECTOR)
+			for(size_t l = min; l < max; l++) {
+				const T* in	= &_in[l * center];
+				T* out		= &_out[l * center];
+				T sum		= 0;
+
+				_Pragma(VECTOR)
+				for(size_t c = 0; c < center; c++) {
+					auto value	 = std::exp(in[c]);
+					sum			+= value;
+					out[c]		 = value;
+				}
+
+				_Pragma(VECTOR)
+				for(size_t c = 0; c < center; c++) {
+					T value	= out[c] / sum;
+					if(usesLog)
+						value = std::log(value);
+					out[c] = value;
+				}
+			}
+		});
+	} else {
+		veda_omp(left, [&](const size_t min, const size_t max) {
+			auto offset	= center * right;
+			auto in		= _in  + min * offset;
+			auto out	= _out + min * offset;
+
+			T* sum = new T[right];
+
+			_Pragma(VEDA_TENSORS_NO_VECTOR)
+			for(size_t l = min; l < max; l++, in += offset, out += offset) {
+				memset(sum, 0, sizeof(T) * right);
+
+				auto i = in;
+				auto o = out;
+
+				_Pragma(VEDA_TENSORS_NO_VECTOR)
+				for(size_t c = 0; c < center; c++, i += right, o += right) {
+					_Pragma(VECTOR)
+					for(size_t r = 0; r < right; r++) {
+						T value	 = std::exp(i[r]);
+						o[r]	 = value;
+						sum[r]	+= value;
+					}
+				}
+
+				o = out;
+
+				_Pragma(VEDA_TENSORS_NO_VECTOR)
+				for(size_t c = 0; c < center; c++, o += right) {
+					_Pragma(VECTOR)
+					for(size_t r = 0; r < right; r++) {
+						T value	= o[r] / sum[r];
+						if(usesLog)
+							value = std::log(value);
+						o[r] = value;
+					}
+				}
+			}
+
+			delete[] sum;
+		});
+	}
+}
+
+#include "unset.h"

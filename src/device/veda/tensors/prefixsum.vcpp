@@ -5,11 +5,13 @@
 template<typename T>
 inline void veda_tensors_prefix_sum(T* out, T* carry, const T* in, const size_t cnt, const bool inclusive) {
 	if(inclusive) {
+		_Pragma(VEDA_TENSORS_NO_INLINE)
 		vstl::seq::prefix_sum(in, out, cnt);
 		if(carry)
 			carry[0] = out[cnt-1];
 	} else {
 		out[0] = 0;
+		_Pragma(VEDA_TENSORS_NO_INLINE)
 		vstl::seq::prefix_sum(in, out+1, cnt-1);
 		if(carry)
 			carry[0] = out[cnt-2] + in[cnt-1];
@@ -25,7 +27,7 @@ void veda_tensors_prefix_sum(T* out_, T* carry_, const T* in_, const size_t left
 			auto in		= &in_ [min * center];
 			auto carry	= carry_ ? &carry_[min] : 0;
 
-			#pragma _NEC novector
+			_Pragma(VEDA_TENSORS_NO_VECTOR)
 			for(size_t l = min; l < max; l++) {
 				veda_tensors_prefix_sum(out, carry, in, center, inclusive);
 				out += center;
@@ -38,9 +40,9 @@ void veda_tensors_prefix_sum(T* out_, T* carry_, const T* in_, const size_t left
 		veda_omp(left, [&](const size_t min, const size_t max) {
 			T* tmp = new T[center];
 
-			#pragma _NEC novector
+			_Pragma(VEDA_TENSORS_NO_VECTOR)
 			for(size_t l = min; l < max; l++) {
-				#pragma _NEC novector
+				_Pragma(VEDA_TENSORS_NO_VECTOR)
 				for(size_t r = 0; r < right; r++) {
 					auto in		= &in_[l * center * right];
 					auto carry	= carry_ ? &carry_[l * right + r] : 0;

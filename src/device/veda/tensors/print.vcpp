@@ -3,6 +3,7 @@
 //------------------------------------------------------------------------------
 #define PRINT(TYPE, SYM, CAST) VEDAresult veda_tensors_print(const TYPE* ptr, size_t elements) {\
 	elements = std::min(elements, 20lu);\
+	_Pragma(VEDA_TENSORS_NO_VECTOR)\
 	for(size_t i = 0; i < elements; i++)\
 		L_INFO("%p[%llu]: " SYM "\n", &ptr[i], i, (CAST)ptr[i]);\
 	return VEDA_SUCCESS;\
@@ -23,6 +24,7 @@ PRINT(double,	"%f",	double)
 //------------------------------------------------------------------------------
 #define PRINT(TYPE, SYM) VEDAresult veda_tensors_print(const TYPE* ptr, size_t elements) {\
 	elements = std::min(elements, 20lu);\
+	_Pragma(VEDA_TENSORS_NO_VECTOR)\
 	for(size_t i = 0; i < elements; i++)\
 		L_INFO("%p[%llu]: " SYM "\n", &ptr[i], i, ptr[i].x, ptr[i].y);\
 	return VEDA_SUCCESS;\

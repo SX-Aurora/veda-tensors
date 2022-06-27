@@ -1,20 +1,15 @@
 #include "internal.h"
 
 //------------------------------------------------------------------------------
-#define UnaryTT(NAME, ...)\
-	struct NAME {\
-		template<typename T>\
-		inline T operator()( const T a, const T b) const {\
-			return __VA_ARGS__;\
-		}\
-	}
+#define UnaryTT(NAME, ...) struct NAME { template<typename T> inline T operator()(const T a, const T b) const { return __VA_ARGS__; } };
 
-UnaryTT(Min, std::min(a, b));
-UnaryTT(Max, std::max(a, b));
-UnaryTT(Add, a + b);
-UnaryTT(Sub, a - b);
-UnaryTT(Mul, a * b);
-UnaryTT(Div, a / b);
+UnaryTT(Min, std::min(a, b))
+UnaryTT(Max, std::max(a, b))
+UnaryTT(Add, a + b)
+UnaryTT(Sub, a - b)
+UnaryTT(Mul, a * b)
+UnaryTT(Div, a / b)
+UnaryTT(Pow, std::pow(a, b))
 #undef UnaryTT
 
 //------------------------------------------------------------------------------
@@ -27,6 +22,7 @@ inline void veda_tensors_unary_tt(void* o, const void* x, const void* y, const s
 		case VEDA_TENSORS_UNARY_SUB:	veda_tensors_xy((T*)o, (const T*)x, (const T*)y, co, cx, cy, Sub());	return;
 		case VEDA_TENSORS_UNARY_MUL:	veda_tensors_xy((T*)o, (const T*)x, (const T*)y, co, cx, cy, Mul());	return;
 		case VEDA_TENSORS_UNARY_DIV:	veda_tensors_xy((T*)o, (const T*)x, (const T*)y, co, cx, cy, Div());	return;
+		case VEDA_TENSORS_UNARY_POW:	veda_tensors_xy((T*)o, (const T*)x, (const T*)y, co, cx, cy, Pow());	return;
 	}
 	FAIL();
 }
@@ -49,6 +45,14 @@ __global__ void veda_tensors_unary_tt(VEDAdeviceptr _o, VEDAdeviceptr _x, VEDAde
 	auto x	= VEDAptr<void>(_x).ptr();
 	auto y	= VEDAptr<void>(_y).ptr();
 	KERNEL_ALL(type, veda_tensors_unary_tt, o, x, y, co, cx, cy, op);
+}
+
+//------------------------------------------------------------------------------
+__global__ void veda_tensors_unary_ts(VEDAdeviceptr _o, VEDAdeviceptr _x, const uint64_t alpha_x, const uint64_t alpha_y, const size_t co, const size_t cx, const int op, const int type) {
+	auto o	= VEDAptr<void>(_o).ptr();
+	auto x	= VEDAptr<void>(_x).ptr();
+	const uint64_t alpha[] = {alpha_x, alpha_y};
+	KERNEL_ALL(type, veda_tensors_unary_tt, o, x, &alpha, co, cx, 1, op);
 }
 
 //------------------------------------------------------------------------------

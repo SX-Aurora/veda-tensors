@@ -1,0 +1,29 @@
+#include "internal.h"
+
+//------------------------------------------------------------------------------
+#define VECTOR	VEDA_TENSORS_PACKED_VECTOR
+#define T		float
+#include "softmax.inc.vcpp"
+
+#define VECTOR	VEDA_TENSORS_VECTOR
+#define T		double
+#include "softmax.inc.vcpp"
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline void veda_tensors_softmax(void* o, void* x, const size_t left, const size_t center, const size_t right, const int op) {
+	switch(op) {
+		case VEDA_TENSORS_SOFTMAX_SOFTMAX:		veda_tensors_softmax<false>((T*)o, (const T*)x, left, center, right);	return;
+		case VEDA_TENSORS_SOFTMAX_LOGSOFTMAX:	veda_tensors_softmax<true> ((T*)o, (const T*)x, left, center, right);	return;
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------
+__global__ void veda_tensors_softmax(VEDAdeviceptr _o, VEDAdeviceptr _x, const size_t left, const size_t center, const size_t right, const int op, const int type) {
+	auto o	= VEDAptr<void>(_o).ptr();
+	auto x	= VEDAptr<void>(_x).ptr();
+	KERNEL_FLOAT(type, veda_tensors_softmax, o, x, left, center, right, op);
+}
+
+//------------------------------------------------------------------------------

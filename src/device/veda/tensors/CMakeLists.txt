@@ -16,13 +16,15 @@ SET(SRC
 	${CMAKE_CURRENT_LIST_DIR}/print.vcpp
 	${CMAKE_CURRENT_LIST_DIR}/reduce.vcpp
 	${CMAKE_CURRENT_LIST_DIR}/select.vcpp
+	${CMAKE_CURRENT_LIST_DIR}/softmax.vcpp
 	${CMAKE_CURRENT_LIST_DIR}/transpose.vcpp
 	${CMAKE_CURRENT_LIST_DIR}/unary_b.vcpp
 	${CMAKE_CURRENT_LIST_DIR}/unary_c.vcpp
 	${CMAKE_CURRENT_LIST_DIR}/unary_t.vcpp
 	${CMAKE_CURRENT_LIST_DIR}/unary_tt.vcpp
-	${CMAKE_CURRENT_LIST_DIR}/unary_tts.vcpp
+	${CMAKE_CURRENT_LIST_DIR}/unary_ttt.vcpp
 	${CMAKE_CURRENT_LIST_DIR}/unary_ttts.vcpp
+	${CMAKE_CURRENT_LIST_DIR}/where.vcpp
 )
 
 INSTALL(FILES ${CMAKE_CURRENT_LIST_DIR}/device.h DESTINATION ${VEDATensors_INSTALL_PATH}/include/veda/tensors)

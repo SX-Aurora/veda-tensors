@@ -3,6 +3,7 @@
 #pragma once
 
 VEDA_TENSORS_API	const char*	veda_tensors_get_unary		(const VEDATensors_unary_op op);
+VEDA_TENSORS_API	const char*	veda_tensors_get_softmax	(const VEDATensors_softmax_op op);
 VEDA_TENSORS_API	const char*	veda_tensors_get_reduce		(const VEDATensors_reduce_op op);
 VEDA_TENSORS_API	const char*	veda_tensors_get_dtype		(const VEDATensors_dtype dtype);
 VEDA_TENSORS_API	const char*	veda_tensors_get_binary		(const VEDATensors_binary_op op);

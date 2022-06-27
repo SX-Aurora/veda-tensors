@@ -47,7 +47,9 @@ inline T operator/(const T A, const T B) {\
 	return x;\
 }\
 namespace std {\
-	inline S abs(const T A)	{ return std::sqrt(A.x * A.x + A.y * A.y); }\
+	inline S abs(const T A)	{\
+		return std::sqrt(A.x * A.x + A.y * A.y);\
+	}\
 }
 
 GEN(float, float_float)

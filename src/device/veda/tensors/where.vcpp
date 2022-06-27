@@ -1,0 +1,44 @@
+#include "internal.h"
+
+//------------------------------------------------------------------------------
+struct Where {
+	template<typename C, typename T>
+	inline T operator()(const C x, const T y, const T z) const {
+		return x ? y : z;
+	}
+};
+
+//------------------------------------------------------------------------------
+template<typename C, typename T>
+static void veda_tensors_where(void* o, const void* x, const void* y, const void* z, const size_t co, const size_t cx, const size_t cy, const size_t cz) {
+	veda_tensors_xyz((T*)o, (const C*)x, (const T*)y, (const T*)z, co, cx, cy, cz, Where());
+}
+
+//------------------------------------------------------------------------------
+template<typename C>
+static void veda_tensors_where(void* o, const void* x, const void* y, const void* z, const size_t co, const size_t cx, const size_t cy, const size_t cz, const int dbytes) {
+	switch(dbytes) {
+		case 1:	veda_tensors_where<C, uint8_t>	(o, x, y, z, co, cx, cy, cz);	return;
+		case 2:	veda_tensors_where<C, uint16_t>	(o, x, y, z, co, cx, cy, cz);	return;
+		case 4:	veda_tensors_where<C, uint32_t>	(o, x, y, z, co, cx, cy, cz);	return;
+		case 8:	veda_tensors_where<C, uint64_t>	(o, x, y, z, co, cx, cy, cz);	return;
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------
+__global__ void veda_tensors_where(VEDAdeviceptr _o, VEDAdeviceptr _x, VEDAdeviceptr _y, VEDAdeviceptr _z, const size_t co, const size_t cx, const size_t cy, const size_t cz, const int cbytes, const int dbytes) {
+	auto o	= VEDAptr<void>(_o).ptr();
+	auto x	= VEDAptr<void>(_x).ptr();
+	auto y	= VEDAptr<void>(_y).ptr();
+	auto z	= VEDAptr<void>(_z).ptr();
+	switch(cbytes) {
+		case 1:	veda_tensors_where<int8_t>	(o, x, y, z, co, cx, cy, cz, dbytes);	return;
+		case 2:	veda_tensors_where<int16_t>	(o, x, y, z, co, cx, cy, cz, dbytes);	return;
+		case 4:	veda_tensors_where<int32_t>	(o, x, y, z, co, cx, cy, cz, dbytes);	return;
+		case 8:	veda_tensors_where<int64_t>	(o, x, y, z, co, cx, cy, cz, dbytes);	return;
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------

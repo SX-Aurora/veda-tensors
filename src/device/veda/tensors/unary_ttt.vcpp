@@ -1,0 +1,65 @@
+#include "internal.h"
+
+//------------------------------------------------------------------------------
+#define UnaryTTS(NAME, ...)\
+	struct NAME {\
+		template<typename S, typename T>\
+		inline T operator()(const T a, const T b, const S c) const {\
+			return __VA_ARGS__;\
+		}\
+	}
+
+UnaryTTS(AlphaAdd,	a + (b * c));
+UnaryTTS(AlphaSub,	a - (b * c));
+UnaryTTS(Clamp, 	std::min(std::max(a, b), c));
+#undef UnaryTTS
+
+//------------------------------------------------------------------------------
+template<typename T>
+inline void veda_tensors_unary_ttt(void* o, const void* x, const void* y, const void* alpha, const size_t co, const size_t cx, const size_t cy, const size_t cz, const int op) {
+	switch(op) {
+		case VEDA_TENSORS_UNARY_ADD:	veda_tensors_xyz((T*)o, (const T*)x, (const T*)y, (const T*)alpha, co, cx, cy, cz, AlphaAdd());	return;
+		case VEDA_TENSORS_UNARY_SUB:	veda_tensors_xyz((T*)o, (const T*)x, (const T*)y, (const T*)alpha, co, cx, cy, cz, AlphaSub());	return;
+		case VEDA_TENSORS_UNARY_CLAMP:	veda_tensors_xyz((T*)o, (const T*)x, (const T*)y, (const T*)alpha, co, cx, cy, cz, Clamp());	return;
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------
+template<typename S, typename T>
+inline void veda_tensors_unary_ttt(void* o, const void* x, const void* y, const void* alpha, const size_t co, const size_t cx, const size_t cy, const size_t cz, const int op) {
+	switch(op) {
+		case VEDA_TENSORS_UNARY_ADD:	veda_tensors_xyz((T*)o, (const T*)x, (const T*)y, (const S*)alpha, co, cx, cy, cz, AlphaAdd());	return;
+		case VEDA_TENSORS_UNARY_SUB:	veda_tensors_xyz((T*)o, (const T*)x, (const T*)y, (const S*)alpha, co, cx, cy, cz, AlphaSub());	return;
+	}
+	FAIL();
+}
+
+//------------------------------------------------------------------------------
+__global__ void veda_tensors_unary_ttt(VEDAdeviceptr _o, VEDAdeviceptr _x, VEDAdeviceptr _y, VEDAdeviceptr _z, const size_t co, const size_t cx, const size_t cy, const size_t cz, const int op, const int type) {
+	auto o	= VEDAptr<void>(_o).ptr();
+	auto x	= VEDAptr<void>(_x).ptr();
+	auto y	= VEDAptr<void>(_y).ptr();
+	auto z	= VEDAptr<void>(_z).ptr();
+	KERNEL_ALL(type, veda_tensors_unary_ttt, o, x, y, z, co, cx, cy, cz, op);
+}
+
+//------------------------------------------------------------------------------
+__global__ void veda_tensors_unary_tts(VEDAdeviceptr _o, VEDAdeviceptr _x, VEDAdeviceptr _y, const uint64_t alpha_x, const uint64_t alpha_y, const size_t co, const size_t cx, const size_t cy, const int op, const int type) {
+	auto o	= VEDAptr<void>(_o).ptr();
+	auto x	= VEDAptr<void>(_x).ptr();
+	auto y	= VEDAptr<void>(_y).ptr();
+	const uint64_t alpha[] = {alpha_x, alpha_y};
+	KERNEL_ALL(type, veda_tensors_unary_ttt, o, x, y, &alpha, co, cx, cy, 1, op);
+}
+
+//------------------------------------------------------------------------------
+__global__ void veda_tensors_unary_tss(VEDAdeviceptr _o, VEDAdeviceptr _x, const uint64_t alpha_x, const uint64_t alpha_y, const uint64_t beta_x, const uint64_t beta_y, const size_t co, const size_t cx, const int op, const int type) {
+	auto o	= VEDAptr<void>(_o).ptr();
+	auto x	= VEDAptr<void>(_x).ptr();
+	const uint64_t alpha[] = {alpha_x, alpha_y};
+	const uint64_t beta [] = { beta_x,  beta_y};
+	KERNEL_ALL(type, veda_tensors_unary_ttt, o, x, &alpha, &beta, co, cx, 1, 1, op);
+}
+
+//------------------------------------------------------------------------------

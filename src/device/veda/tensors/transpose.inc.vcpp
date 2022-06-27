@@ -1,0 +1,17 @@
+inline void veda_tensors_transpose(T* dst_, T* src_, const size_t sizeA, const size_t sizeB) {
+	veda_omp(sizeA, [=](const size_t min, const size_t max) {
+		auto dst = dst_ + min * sizeB;
+		auto src = src_ + min;
+		auto cnt = max - min;
+
+		_Pragma(VEDA_TENSORS_NO_VECTOR)
+		for(size_t A = 0; A < cnt; A++) {
+			_Pragma(VECTOR)
+			for(size_t B = 0; B < sizeB; B++) {
+				dst[A * sizeB + B] = src[B * sizeA + A];
+			}
+		}
+	});
+}
+
+#include "unset.h"

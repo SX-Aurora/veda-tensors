@@ -37,12 +37,9 @@ inline void veda_tensors_select(T* _out, const T* _in, const size_t ocnt, const 
 			auto in  = _in  + min * ostride;
 			auto out = _out + min * icnt;
 
-			#pragma _NEC novector
-			for(size_t o = min; o < max; o++) {
+			_Pragma(VEDA_TENSORS_NO_VECTOR)
+			for(size_t o = min; o < max; o++, out += icnt, in += ostride)
 				memcpy(out, in, icnt * sizeof(T));
-				out += icnt; 
-				in  += ostride;
-			}
 		});
 	}
 }

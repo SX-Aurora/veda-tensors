@@ -8,6 +8,7 @@ VEDA_TENSORS_API const char* veda_tensors_get_unary(const VEDATensors_unary_op o
 		case VEDA_TENSORS_UNARY_ADDCDIV:	return "VEDA_TENSORS_UNARY_ADDCDIV";
 		case VEDA_TENSORS_UNARY_ADDCMUL:	return "VEDA_TENSORS_UNARY_ADDCMUL";
 		case VEDA_TENSORS_UNARY_CEIL:		return "VEDA_TENSORS_UNARY_CEIL";
+		case VEDA_TENSORS_UNARY_CLAMP:		return "VEDA_TENSORS_UNARY_CLAMP";
 		case VEDA_TENSORS_UNARY_COS:		return "VEDA_TENSORS_UNARY_COS";
 		case VEDA_TENSORS_UNARY_DIV:		return "VEDA_TENSORS_UNARY_DIV";
 		case VEDA_TENSORS_UNARY_EXP:		return "VEDA_TENSORS_UNARY_EXP";
@@ -20,6 +21,8 @@ VEDA_TENSORS_API const char* veda_tensors_get_unary(const VEDATensors_unary_op o
 		case VEDA_TENSORS_UNARY_MAX:		return "VEDA_TENSORS_UNARY_MAX";
 		case VEDA_TENSORS_UNARY_MIN:		return "VEDA_TENSORS_UNARY_MIN";
 		case VEDA_TENSORS_UNARY_MUL:		return "VEDA_TENSORS_UNARY_MUL";
+		case VEDA_TENSORS_UNARY_NEG:		return "VEDA_TENSORS_UNARY_NEG";
+		case VEDA_TENSORS_UNARY_POW:		return "VEDA_TENSORS_UNARY_POW";
 		case VEDA_TENSORS_UNARY_REAL:		return "VEDA_TENSORS_UNARY_REAL";
 		case VEDA_TENSORS_UNARY_RECIPROCAL:	return "VEDA_TENSORS_UNARY_RECIPROCAL";
 		case VEDA_TENSORS_UNARY_RSQRT:		return "VEDA_TENSORS_UNARY_RSQRT";
@@ -32,8 +35,19 @@ VEDA_TENSORS_API const char* veda_tensors_get_unary(const VEDATensors_unary_op o
 }
 
 //------------------------------------------------------------------------------
+VEDA_TENSORS_API const char* veda_tensors_get_softmax(const VEDATensors_softmax_op op) {
+	switch(op) {
+		case VEDA_TENSORS_SOFTMAX_SOFTMAX:		return "VEDA_TENSORS_SOFTMAX_SOFTMAX";
+		case VEDA_TENSORS_SOFTMAX_LOGSOFTMAX:	return "VEDA_TENSORS_SOFTMAX_LOGSOFTMAX";
+	}
+	return "VEDA_TENSORS_SOFTMAX_UNKNOWN";
+}
+
+//------------------------------------------------------------------------------
 VEDA_TENSORS_API const char* veda_tensors_get_reduce(const VEDATensors_reduce_op op) {
 	switch(op) {
+		case VEDA_TENSORS_REDUCE_ALL:	return "VEDA_TENSORS_REDUCE_ALL";
+		case VEDA_TENSORS_REDUCE_ANY:	return "VEDA_TENSORS_REDUCE_ANY";
 		case VEDA_TENSORS_REDUCE_L0:	return "VEDA_TENSORS_REDUCE_L0";
 		case VEDA_TENSORS_REDUCE_L1:	return "VEDA_TENSORS_REDUCE_L1";
 		case VEDA_TENSORS_REDUCE_L2:	return "VEDA_TENSORS_REDUCE_L2";
@@ -117,6 +131,7 @@ VEDA_TENSORS_API const char* veda_tensors_get_kernel(const VEDATensors_kernel ke
 		case VEDA_TENSORS_KERNEL_ADAM:					return "VEDA_TENSORS_KERNEL_ADAM";
 		case VEDA_TENSORS_KERNEL_ADAMAX:				return "VEDA_TENSORS_KERNEL_ADAMAX";
 		case VEDA_TENSORS_KERNEL_BINARY:				return "VEDA_TENSORS_KERNEL_BINARY";
+		case VEDA_TENSORS_KERNEL_BINARY_S:				return "VEDA_TENSORS_KERNEL_BINARY_S";
 		case VEDA_TENSORS_KERNEL_BITWISE:				return "VEDA_TENSORS_KERNEL_BITWISE";
 		case VEDA_TENSORS_KERNEL_CAT:					return "VEDA_TENSORS_KERNEL_CAT";
 		case VEDA_TENSORS_KERNEL_CONVERT:				return "VEDA_TENSORS_KERNEL_CONVERT";
@@ -130,13 +145,18 @@ VEDA_TENSORS_API const char* veda_tensors_get_kernel(const VEDATensors_kernel ke
 		case VEDA_TENSORS_KERNEL_REDUCE:				return "VEDA_TENSORS_KERNEL_REDUCE";
 		case VEDA_TENSORS_KERNEL_REDUCE_DIM:			return "VEDA_TENSORS_KERNEL_REDUCE_DIM";
 		case VEDA_TENSORS_KERNEL_SELECT:				return "VEDA_TENSORS_KERNEL_SELECT";
+		case VEDA_TENSORS_KERNEL_SOFTMAX:				return "VEDA_TENSORS_KERNEL_SOFTMAX";
 		case VEDA_TENSORS_KERNEL_TRANSPOSE:				return "VEDA_TENSORS_KERNEL_TRANSPOSE";
 		case VEDA_TENSORS_KERNEL_UNARY_B:				return "VEDA_TENSORS_KERNEL_UNARY_B";
 		case VEDA_TENSORS_KERNEL_UNARY_C:				return "VEDA_TENSORS_KERNEL_UNARY_C";
 		case VEDA_TENSORS_KERNEL_UNARY_T:				return "VEDA_TENSORS_KERNEL_UNARY_T";
+		case VEDA_TENSORS_KERNEL_UNARY_TS:				return "VEDA_TENSORS_KERNEL_UNARY_TS";
+		case VEDA_TENSORS_KERNEL_UNARY_TSS:				return "VEDA_TENSORS_KERNEL_UNARY_TSS";
 		case VEDA_TENSORS_KERNEL_UNARY_TT:				return "VEDA_TENSORS_KERNEL_UNARY_TT";
 		case VEDA_TENSORS_KERNEL_UNARY_TTS:				return "VEDA_TENSORS_KERNEL_UNARY_TTS";
+		case VEDA_TENSORS_KERNEL_UNARY_TTT:				return "VEDA_TENSORS_KERNEL_UNARY_TTT";
 		case VEDA_TENSORS_KERNEL_UNARY_TTTS:			return "VEDA_TENSORS_KERNEL_UNARY_TTTS";
+		case VEDA_TENSORS_KERNEL_WHERE:					return "VEDA_TENSORS_KERNEL_WHERE";
 	}
 	return "VEDA_TENSORS_KERNEL_UNKNOWN";
 }
@@ -149,6 +169,7 @@ VEDA_TENSORS_API const char* veda_tensors_get_kernel_func(const VEDATensors_kern
 		case VEDA_TENSORS_KERNEL_ADAM:				return "veda_tensors_adam";
 		case VEDA_TENSORS_KERNEL_ADAMAX:			return "veda_tensors_adamax";
 		case VEDA_TENSORS_KERNEL_BINARY:			return "veda_tensors_binary";
+		case VEDA_TENSORS_KERNEL_BINARY_S:			return "veda_tensors_binary_s";
 		case VEDA_TENSORS_KERNEL_BITWISE:			return "veda_tensors_bitwise";
 		case VEDA_TENSORS_KERNEL_CAT:				return "veda_tensors_cat";
 		case VEDA_TENSORS_KERNEL_CONVERT:			return "veda_tensors_convert";
@@ -162,13 +183,18 @@ VEDA_TENSORS_API const char* veda_tensors_get_kernel_func(const VEDATensors_kern
 		case VEDA_TENSORS_KERNEL_REDUCE:			return "veda_tensors_reduce";
 		case VEDA_TENSORS_KERNEL_REDUCE_DIM:		return "veda_tensors_reduce_dim";
 		case VEDA_TENSORS_KERNEL_SELECT:			return "veda_tensors_select";
+		case VEDA_TENSORS_KERNEL_SOFTMAX:			return "veda_tensors_softmax";
 		case VEDA_TENSORS_KERNEL_TRANSPOSE:			return "veda_tensors_transpose";
 		case VEDA_TENSORS_KERNEL_UNARY_B:			return "veda_tensors_unary_b";
 		case VEDA_TENSORS_KERNEL_UNARY_C:			return "veda_tensors_unary_c";
 		case VEDA_TENSORS_KERNEL_UNARY_T:			return "veda_tensors_unary_t";
+		case VEDA_TENSORS_KERNEL_UNARY_TS:			return "veda_tensors_unary_ts";
+		case VEDA_TENSORS_KERNEL_UNARY_TSS:			return "veda_tensors_unary_tss";
 		case VEDA_TENSORS_KERNEL_UNARY_TT:			return "veda_tensors_unary_tt";
 		case VEDA_TENSORS_KERNEL_UNARY_TTS:			return "veda_tensors_unary_tts";
+		case VEDA_TENSORS_KERNEL_UNARY_TTT:			return "veda_tensors_unary_ttt";
 		case VEDA_TENSORS_KERNEL_UNARY_TTTS:		return "veda_tensors_unary_ttts";
+		case VEDA_TENSORS_KERNEL_WHERE:				return "veda_tensors_where";
 	}
 	THROW("Unknown VEDA_TENSOR_KERNEL %i", kernel);
 }

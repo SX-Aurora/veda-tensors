@@ -1,54 +1,63 @@
 #include "internal.h"
 
 //------------------------------------------------------------------------------
-#define ReduceOp(NAME, OP, POST)\
+#define ReduceOp(NAME, SUM, INIT, RPOST, POST, TEST)\
+	template<typename T>\
 	struct NAME {\
-		template<typename T>\
-		inline T operator()(const T a, const T b) const {\
-			return OP;\
+		template<typename S>\
+		inline	T		operator()		(const T a, const S b) const		{	return SUM;  	}\
+		inline	T		post			(const T c, const size_t cnt) const	{	return POST; 	}\
+		inline	T		init			(void) const						{	return {INIT};	}\
+		inline	bool	requires_post	(void) const						{	return RPOST;	}\
+		inline	void	indices			(T& a, int64_t& idx, const T b, const int64_t c) const {\
+			if(TEST) {\
+				a   = b;\
+				idx = c;\
+			}\
 		}\
-		template<typename T, typename C>\
-		inline T post(const T c, const C cnt) const {\
-			return POST;\
-		}\
-	}
+	};
 
-ReduceOp(Min,	std::min(a, b),			c			);
-ReduceOp(Max,	std::max(a, b),			c			);
-ReduceOp(Sum,	a + b,					c			);
-ReduceOp(Mean,	a + b,					T(c / cnt)	);
-ReduceOp(L0,	a + (b == 0 ? 0 : 1),	c			);
-ReduceOp(L1,	a + std::abs(b),		c			);
-ReduceOp(L2,	a + b * b,				std::sqrt(c));
+ReduceOp(MIN,	a <= b ? a : b,			std::numeric_limits<T>::max(),	false,	c,				a > b)
+ReduceOp(MAX,	a >= b ? a : b,			std::numeric_limits<T>::min(),	false,	c,				a < b)
+ReduceOp(SUM,	a + b,					0,								false,	c,				false)
+ReduceOp(MEAN,	a + b,					0,								true,	T(c / cnt),		false)
+ReduceOp(L0,	a + (b == 0 ? 0 : 1),	0,								false,	c,				false)
+ReduceOp(L1,	a + std::abs(b),		0,								false,	c,				false)
+ReduceOp(L2,	a + b * b,				0,								false,	std::sqrt(c),	false)
+ReduceOp(ANY,	(a!=T(0)) || (b!=T(0)),	0,								false,	c,				false)
+ReduceOp(ALL,	(a!=T(0)) && (b!=T(0)),	1,								false,	c,				false)
 
 //------------------------------------------------------------------------------
 // Reduce
 //------------------------------------------------------------------------------
-template<typename S, typename T, typename Op>
-T veda_tensors_reduce(const T* in_, const size_t elements, const Op op, const S init = 0) {
+template<typename S, typename T, typename OP>
+void veda_tensors_reduce(T* out_, const T* in_, const size_t elements, const OP op) {
 	T out = veda_omp_simd_reduce(elements, [&](const size_t min, const size_t max) {
-		T out		= T{init};
+		T out		= op.init();
 		auto cnt	= max - min;
 		auto in		= in_ + min;
 
 		for(size_t i = 0; i < cnt; i++)
 			out = op(out, in[i]);
+
 		return out;
-	}, op, T{init}, veda_omp_vlen<T>());
-	return op.post(out, elements);
+	}, op, op.init(), veda_omp_vlen<T>());
+	*out_ = op.post(out, elements);
 }
 
 //------------------------------------------------------------------------------
 template<typename T>
 void veda_tensors_reduce(void* out, void* in, const size_t elements, const int op) {
 	switch(op) {
-		case VEDA_TENSORS_REDUCE_MIN:	(*(T*)out) = veda_tensors_reduce<T>((const T*)in, elements, Min(), std::numeric_limits<T>::max());	return;
-		case VEDA_TENSORS_REDUCE_MAX:	(*(T*)out) = veda_tensors_reduce<T>((const T*)in, elements, Max(), std::numeric_limits<T>::min());	return;
-		case VEDA_TENSORS_REDUCE_SUM:	(*(T*)out) = veda_tensors_reduce<T>((const T*)in, elements, Sum());									return;
-		case VEDA_TENSORS_REDUCE_MEAN:	(*(T*)out) = veda_tensors_reduce<T>((const T*)in, elements, Mean());								return;
-		case VEDA_TENSORS_REDUCE_L0:	(*(T*)out) = veda_tensors_reduce<T>((const T*)in, elements, L0());									return;
-		case VEDA_TENSORS_REDUCE_L1:	(*(T*)out) = veda_tensors_reduce<T>((const T*)in, elements, L1());									return;
-		case VEDA_TENSORS_REDUCE_L2:	(*(T*)out) = veda_tensors_reduce<T>((const T*)in, elements, L2());									return;
+		case VEDA_TENSORS_REDUCE_MIN:	veda_tensors_reduce<T>	((T*)out, (const T*)in, elements, MIN<T>());	return;
+		case VEDA_TENSORS_REDUCE_MAX:	veda_tensors_reduce<T>	((T*)out, (const T*)in, elements, MAX<T>());	return;
+		case VEDA_TENSORS_REDUCE_SUM:	veda_tensors_reduce<T>	((T*)out, (const T*)in, elements, SUM<T>());	return;
+		case VEDA_TENSORS_REDUCE_MEAN:	veda_tensors_reduce<T>	((T*)out, (const T*)in, elements, MEAN<T>());	return;
+		case VEDA_TENSORS_REDUCE_L0:	veda_tensors_reduce<T>	((T*)out, (const T*)in, elements, L0<T>());		return;
+		case VEDA_TENSORS_REDUCE_L1:	veda_tensors_reduce<T>	((T*)out, (const T*)in, elements, L1<T>());		return;
+		case VEDA_TENSORS_REDUCE_L2:	veda_tensors_reduce<T>	((T*)out, (const T*)in, elements, L2<T>());		return;
+		case VEDA_TENSORS_REDUCE_ANY:	veda_tensors_reduce<T>	((T*)out, (const T*)in, elements, ANY<T>());	return;
+		case VEDA_TENSORS_REDUCE_ALL:	veda_tensors_reduce<T>	((T*)out, (const T*)in, elements, ALL<T>());	return;
 	}
 	FAIL();
 }
@@ -57,8 +66,8 @@ void veda_tensors_reduce(void* out, void* in, const size_t elements, const int o
 template<typename S, typename T>
 void veda_tensors_reduce(void* out, void* in, const size_t elements, const int op) {
 	switch(op) {
-		case VEDA_TENSORS_REDUCE_SUM:	(*(T*)out) = veda_tensors_reduce<S>((const T*)in, elements, Sum());		return;
-		case VEDA_TENSORS_REDUCE_MEAN:	(*(T*)out) = veda_tensors_reduce<S>((const T*)in, elements, Mean());	return;
+		case VEDA_TENSORS_REDUCE_SUM:	veda_tensors_reduce<S>((T*)out, (const T*)in, elements, SUM<T>());	return;
+		case VEDA_TENSORS_REDUCE_MEAN:	veda_tensors_reduce<S>((T*)out, (const T*)in, elements, MEAN<T>());	return;
 	}
 	FAIL();
 }
@@ -73,47 +82,47 @@ __global__ void veda_tensors_reduce(VEDAdeviceptr _out, VEDAdeviceptr _in, const
 //------------------------------------------------------------------------------
 // ReduceDim
 //------------------------------------------------------------------------------
-template<typename T, typename Op>
-inline void veda_tensors_reduce_dim(T* values, int64_t* indices, const T* in, const size_t left, const size_t center, const size_t right, const Op op) {
-	static_assert(std::is_same<Op, Min>::value || std::is_same<Op, Max>::value);
+template<typename T, typename OP>
+void veda_tensors_reduce_dim(T* values_, int64_t* indices_, const T* in_, const size_t left, const size_t center, const size_t right, const OP op) {
+	static_assert(
+		std::is_same<OP, MIN<T>>::value || 
+		std::is_same<OP, MAX<T>>::value
+	);
 
 	if(right == 1) {
 		veda_omp(left, [&](const size_t min, const size_t max) {
-			#pragma _NEC novector
+			_Pragma(VEDA_TENSORS_NO_VECTOR)
 			for(size_t l = min; l < max; l++) {
-				auto data = &in[l * center];
-				auto out = data[0];
+				auto in = &in_[l * center];
+				auto out = in[0];
 				int64_t idx = 0;
 
-				for(size_t c = 0; c < center; c++) {
-					auto prev = out;
-					out = op(out, data[c]);
-					if(prev != out)
-						idx = c;
-				}
+				_Pragma(VEDA_TENSORS_SELECT_VECTOR)
+				for(size_t c = 0; c < center; c++)
+					op.indices(out, idx, in[c], (int64_t)c);
 
-				values [l] = out;
-				indices[l] = idx;
+				values_ [l] = out;
+				indices_[l] = idx;
 			}
 		});
 	} else {
 		veda_omp(left, [&](const size_t min, const size_t max) {
-			#pragma _NEC novector
-			for(size_t l = min; l < max; l++) {
-				for(size_t r = 0; r < right; r++) {
-					auto data = &in[l * center * right + r];
-					auto out = data[0];
-					int64_t idx = 0;
+			auto in			= in_	   + min * right * center;
+			auto values		= values_  + min * right;
+			auto indices	= indices_ + min * right;
 
-					for(size_t c = 0; c < center; c++) {
-						auto prev = out;
-						out = op(out, data[c * right]);
-						if(prev != out)
-							idx = c;
+			_Pragma(VEDA_TENSORS_NO_VECTOR)
+			for(size_t l = min; l < max; l++, values += right, indices += right) {
+				_Pragma(VEDA_TENSORS_SELECT_VECTOR)
+				for(size_t r = 0; r < right; r++)
+					values[r] = op.init();
+
+				_Pragma(VEDA_TENSORS_NO_VECTOR)
+				for(size_t c = 0; c < center; c++, in += right) {
+					_Pragma(VEDA_TENSORS_SELECT_VECTOR)
+					for(size_t r = 0; r < right; r++) {
+						op.indices(values[r], indices[r], in[r], (int64_t)c);
 					}
-
-					values [l * right + r] = out;
-					indices[l * right + r] = idx;
 				}
 			}
 		});
@@ -121,59 +130,94 @@ inline void veda_tensors_reduce_dim(T* values, int64_t* indices, const T* in, co
 }
 
 //------------------------------------------------------------------------------
-template<typename T, typename Op>
-inline void veda_tensors_reduce_dim(T* values, const T* in, const size_t left, const size_t center, const size_t right, const Op op) {
-	static_assert(std::is_same<Op, Sum>::value || std::is_same<Op, Mean>::value);
+template<typename S, typename T, typename OP>
+void veda_tensors_reduce_dim(T* out_, const S* in_, const size_t left, const size_t center, const size_t right, const OP op) {
+	static_assert(
+		std::is_same<OP, SUM<T>>::value		||
+		std::is_same<OP, MEAN<T>>::value	||
+		std::is_same<OP, SUM<S>>::value		||
+		std::is_same<OP, MEAN<S>>::value	||
+		std::is_same<OP, L0<T>>::value		||
+		std::is_same<OP, L1<T>>::value		||
+		std::is_same<OP, L2<T>>::value		||
+		std::is_same<OP, ANY<T>>::value		||
+		std::is_same<OP, ALL<T>>::value
+	);
 
 	if(right == 1) {
 		veda_omp(left, [&](const size_t min, const size_t max) {
-			#pragma _NEC novector
-			for(size_t l = min; l < max; l++) {
-				auto data = &in[l * center];
-				T out = {0};
+			auto in		= in_ + min * center;
+			auto out	= out_;
 
+			_Pragma(VEDA_TENSORS_NO_VECTOR)
+			for(size_t l = min; l < max; l++, in += center) {
+				T acc = op.init();
+
+				_Pragma(VEDA_TENSORS_SELECT_VECTOR)
 				for(size_t c = 0; c < center; c++)
-					out = op(out, data[c]);
+					acc = op(acc, in[c]);
 
-				values[l] = op.post(out, center);
+				out[l] = op.post(acc, center);
 			}
 		});
 	} else {
 		veda_omp(left, [&](const size_t min, const size_t max) {
-			#pragma _NEC novector
-			for(size_t l = min; l < max; l++) {
+			T* acc		= new T[right];
+			auto offset	= center * right;
+			auto in		= in_  + min * offset;
+			auto out	= out_ + min * right;
+
+			_Pragma(VEDA_TENSORS_NO_VECTOR)
+			for(size_t l = min; l < max; l++, out += right) {
+				_Pragma(VEDA_TENSORS_SELECT_VECTOR)
 				for(size_t r = 0; r < right; r++) {
-					auto data = &in[l * center * right + r];
-					T out = {0};
+					out[r] = op.init();
+				}
 
-					for(size_t c = 0; c < center; c++)
-						out = op(out, data[c * right]);
-
-					values[l * right + r] = op.post(out, center);
+				_Pragma(VEDA_TENSORS_NO_VECTOR)
+				for(size_t c = 0; c < center; c++, in += right) {
+					_Pragma(VEDA_TENSORS_SELECT_VECTOR)
+					for(size_t r = 0; r < right; r++) {
+						out[r] = op(out[r], in[r]);
+					}
+				}
+				
+				if(op.requires_post()) {
+					_Pragma(VEDA_TENSORS_SELECT_VECTOR)
+					for(size_t r = 0; r < right; r++) {
+						out[r] = op.post(out[r], center);
+					}
 				}
 			}
+
+			delete[] acc;
 		});
 	}
 }
 
 //------------------------------------------------------------------------------
 template<typename T>
-inline void veda_tensors_reduce_dim(void* values, int64_t* indices, void* in, const size_t left, const size_t center, const size_t right, const int op) {
+void veda_tensors_reduce_dim(void* values, int64_t* indices, void* in, const size_t left, const size_t center, const size_t right, const int op) {
 	switch(op) {
-		case VEDA_TENSORS_REDUCE_MIN:	veda_tensors_reduce_dim((T*)values, indices,	(const T*)in, left, center, right, Min());	return;
-		case VEDA_TENSORS_REDUCE_MAX:	veda_tensors_reduce_dim((T*)values, indices,	(const T*)in, left, center, right, Max());	return;
-		case VEDA_TENSORS_REDUCE_SUM:	veda_tensors_reduce_dim((T*)values,				(const T*)in, left, center, right, Sum());	return;
-		case VEDA_TENSORS_REDUCE_MEAN:	veda_tensors_reduce_dim((T*)values,				(const T*)in, left, center, right, Mean());	return;
+		case VEDA_TENSORS_REDUCE_MIN:	veda_tensors_reduce_dim<T>((T*)values, indices,	(const T*)in, left, center, right, MIN	<T>());	return;
+		case VEDA_TENSORS_REDUCE_MAX:	veda_tensors_reduce_dim<T>((T*)values, indices,	(const T*)in, left, center, right, MAX	<T>());	return;
+		case VEDA_TENSORS_REDUCE_SUM:	veda_tensors_reduce_dim<T>((T*)values,			(const T*)in, left, center, right, SUM	<T>());	return;
+		case VEDA_TENSORS_REDUCE_MEAN:	veda_tensors_reduce_dim<T>((T*)values,			(const T*)in, left, center, right, MEAN	<T>());	return;
+		case VEDA_TENSORS_REDUCE_L0:	veda_tensors_reduce_dim<T>((T*)values,			(const T*)in, left, center, right, L0	<T>());	return;
+		case VEDA_TENSORS_REDUCE_L1:	veda_tensors_reduce_dim<T>((T*)values,			(const T*)in, left, center, right, L1	<T>());	return;
+		case VEDA_TENSORS_REDUCE_L2:	veda_tensors_reduce_dim<T>((T*)values,			(const T*)in, left, center, right, L2	<T>());	return;
+		case VEDA_TENSORS_REDUCE_ANY:	veda_tensors_reduce_dim<T>((T*)values,			(const T*)in, left, center, right, ANY	<T>());	return;
+		case VEDA_TENSORS_REDUCE_ALL:	veda_tensors_reduce_dim<T>((T*)values,			(const T*)in, left, center, right, ALL	<T>());	return;
 	}
 	FAIL();
 }
 
 //------------------------------------------------------------------------------
 template<typename S, typename T>
-inline void veda_tensors_reduce_dim(void* values, int64_t* indices, void* in, const size_t left, const size_t center, const size_t right, const int op) {
+void veda_tensors_reduce_dim(void* values, int64_t* indices, void* in, const size_t left, const size_t center, const size_t right, const int op) {
 	switch(op) {
-		case VEDA_TENSORS_REDUCE_SUM:	veda_tensors_reduce_dim((T*)values,	(const T*)in, left, center, right, Sum());	return;
-		case VEDA_TENSORS_REDUCE_MEAN:	veda_tensors_reduce_dim((T*)values,	(const T*)in, left, center, right, Mean());	return;
+		case VEDA_TENSORS_REDUCE_SUM:	veda_tensors_reduce_dim<T>((T*)values, (const T*)in, left, center, right, SUM <T>());	return;
+		case VEDA_TENSORS_REDUCE_MEAN:	veda_tensors_reduce_dim<T>((T*)values, (const T*)in, left, center, right, MEAN<T>());	return;
 	}
 	FAIL();
 }

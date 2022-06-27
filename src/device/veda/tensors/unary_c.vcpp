@@ -10,9 +10,9 @@
 		}\
 	}
 
-UnaryC(Abs,			std::abs(a));
-UnaryC(Real,		a.x);
-UnaryC(Imag,		a.y);
+UnaryC(Abs,		std::abs(a));
+UnaryC(Real,	a.x);
+UnaryC(Imag,	a.y);
 #undef UnaryC
 
 //------------------------------------------------------------------------------

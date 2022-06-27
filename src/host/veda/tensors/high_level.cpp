@@ -94,6 +94,15 @@ VEDA_TENSORS_API VEDAresult veda_tensors_binary(VEDATensors_chandle handle, VEDA
 }
 
 //------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_binary_s(VEDATensors_chandle handle, VEDATensors_tensor* o, VEDATensors_tensor* x, const VEDATensors_scalar alpha, const VEDATensors_binary_op op) {
+	VERIFY(
+		verify_tensors		(o, x);
+		verify_same_dtype	(VEDA_TENSORS_DTYPE_S8, o);
+	)
+	return veda_tensors_ll_binary_s(handle, o->ptr, x->ptr, alpha, o->numel, x->numel, op, x->dtype);
+}
+
+//------------------------------------------------------------------------------
 VEDA_TENSORS_API VEDAresult veda_tensors_bitwise(VEDATensors_chandle handle, VEDATensors_tensor* o, VEDATensors_tensor* x, VEDATensors_tensor* y, const VEDATensors_bitwise_op op) {
 	VERIFY(
 		verify_tensors		(o, x, y);
@@ -305,6 +314,19 @@ VEDA_TENSORS_API VEDAresult veda_tensors_unary_c(VEDATensors_chandle handle, VED
 }
 
 //------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult	veda_tensors_softmax(VEDATensors_chandle handle, VEDATensors_tensor* o, VEDATensors_tensor* x, const int axis, const VEDATensors_softmax_op op) {
+	VERIFY(
+		verify_tensors		(o, x);
+		verify_same_dtype	(o, x);
+		verify_same_shapes	(o, x);
+		verify_axis			(x, axis);
+	)
+	auto [left, center, right] = compute_lcr(x, axis);
+
+	return veda_tensors_ll_softmax(handle, o->ptr, x->ptr, left, center, right, op, x->dtype);
+}
+
+//------------------------------------------------------------------------------
 VEDA_TENSORS_API VEDAresult veda_tensors_unary_t(VEDATensors_chandle handle, VEDATensors_tensor* o, VEDATensors_tensor* x, const VEDATensors_unary_op op) {
 	VERIFY(
 		verify_tensors		(o, x);
@@ -323,12 +345,39 @@ VEDA_TENSORS_API VEDAresult veda_tensors_unary_tt(VEDATensors_chandle handle, VE
 }
 
 //------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_unary_ts(VEDATensors_chandle handle, VEDATensors_tensor* o, VEDATensors_tensor* x, const VEDATensors_scalar alpha, const VEDATensors_unary_op op) {
+	VERIFY(
+		verify_tensors		(o, x);
+		verify_same_dtype	(o, x);
+	)
+	return veda_tensors_ll_unary_ts(handle, o->ptr, x->ptr, alpha, o->numel, x->numel, op, x->dtype);
+}
+
+//------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_unary_tss(VEDATensors_chandle handle, VEDATensors_tensor* o, VEDATensors_tensor* x, const VEDATensors_scalar alpha, const VEDATensors_scalar beta, const VEDATensors_unary_op op) {
+	VERIFY(
+		verify_tensors		(o, x);
+		verify_same_dtype	(o, x);
+	)
+	return veda_tensors_ll_unary_tss(handle, o->ptr, x->ptr, alpha, beta, o->numel, x->numel, op, x->dtype);
+}
+
+//------------------------------------------------------------------------------
 VEDA_TENSORS_API VEDAresult veda_tensors_unary_tts(VEDATensors_chandle handle, VEDATensors_tensor* o, VEDATensors_tensor* x, VEDATensors_tensor* y, const VEDATensors_scalar alpha, const VEDATensors_unary_op op) {
 	VERIFY(
 		verify_tensors		(o, x, y);
 		verify_same_dtype	(o, x, y);
 	)
 	return veda_tensors_ll_unary_tts(handle, o->ptr, x->ptr, y->ptr, alpha, o->numel, x->numel, y->numel, op, x->dtype);
+}
+
+//------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_unary_ttt(VEDATensors_chandle handle, VEDATensors_tensor* o, VEDATensors_tensor* x, VEDATensors_tensor* y, VEDATensors_tensor* z, const VEDATensors_unary_op op) {
+	VERIFY(
+		verify_tensors		(o, x, y, z);
+		verify_same_dtype	(o, x, y, z);
+	)
+	return veda_tensors_ll_unary_ttt(handle, o->ptr, x->ptr, y->ptr, z->ptr, o->numel, x->numel, y->numel, z->numel, op, x->dtype);
 }
 
 //------------------------------------------------------------------------------
@@ -386,6 +435,15 @@ VEDA_TENSORS_API VEDAresult veda_tensors_adamax(VEDATensors_chandle handle, VEDA
 		verify_same_shapes	(var, m, v, grad);
 	)
 	return veda_tensors_ll_adamax(handle, var->ptr, m->ptr, v->ptr, grad->ptr, beta1_power, lr, beta1, beta2, epsilon, var->numel, var->dtype);
+}
+
+//------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_where(VEDATensors_chandle handle, VEDATensors_tensor* o, VEDATensors_tensor* x, VEDATensors_tensor* y, VEDATensors_tensor* z) {
+	VERIFY(
+		verify_tensors		(o, x, y, z);
+		verify_same_dtype	(o,    y, z);
+	)
+	return veda_tensors_ll_where(handle, o->ptr, x->ptr, y->ptr, z->ptr, o->numel, x->numel, y->numel, z->numel, x->dtype, o->dtype);
 }
 
 //------------------------------------------------------------------------------

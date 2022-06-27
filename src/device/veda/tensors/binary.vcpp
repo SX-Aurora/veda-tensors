@@ -55,3 +55,11 @@ __global__ void veda_tensors_binary(VEDAdeviceptr _o, VEDAdeviceptr _x, VEDAdevi
 }
 
 //------------------------------------------------------------------------------
+__global__ void veda_tensors_binary_s(VEDAdeviceptr _o, VEDAdeviceptr _x, const int64_t alpha_x, const int64_t alpha_y, const size_t co, const size_t cx, const int op, const int dtype) {
+	auto o	= VEDAptr<int8_t>	(_o).ptr();
+	auto x	= VEDAptr<void>		(_x).ptr();
+	const int64_t alpha[] = {alpha_x, alpha_y};
+	KERNEL_ALL(dtype, veda_tensors_binary, o, x, (void*)&alpha, co, cx, size_t(1), (VEDATensors_binary_op)op);
+}
+
+//------------------------------------------------------------------------------
