@@ -8,6 +8,12 @@ complete.
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
 
+<tr><td>v0.1.3</td><td>
+<ul>
+	<li>Fixed dtype checking in <code>veda_tensors_unary_c</code></li>
+</ul>
+</td></tr>
+
 <tr><td>v0.1.2</td><td>
 <ul>
 	<li>Added L0, L1, L2 to <code>veda_tensors_reduce_dim</code></li>

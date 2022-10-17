@@ -19,7 +19,7 @@ UnaryC(Imag,	a.y);
 template<typename S, typename T>
 inline void veda_tensors_unary_c(void* o, const void* x, const size_t co, const size_t cx, const int op) {
 	switch(op) {
-		case VEDA_TENSORS_UNARY_ABS:	veda_tensors_x((S*)o, (const T*)x, co, cx, Abs <S>());	return;
+		case VEDA_TENSORS_UNARY_ABS:	veda_tensors_x((S*)o, (const T*)x, co, cx, Abs<S>());	return;
 	}
 	FAIL();
 }

@@ -44,7 +44,7 @@ inline void verify_same_shapes(VEDATensors_tensor* a, VEDATensors_tensor* b, Arg
 // verify_same_dtype
 //------------------------------------------------------------------------------
 inline void verify_same_dtype(const VEDATensors_dtype ref, VEDATensors_tensor* t) {
-	VEDA_TENSORS_THROW(ref != t->dtype, "Excepted %s but found %s.", veda_tensors_get_dtype(ref), veda_tensors_get_dtype(t->dtype));
+	VEDA_TENSORS_THROW(ref != t->dtype, "Expected %s but found %s.", veda_tensors_get_dtype(ref), veda_tensors_get_dtype(t->dtype));
 }
 
 //------------------------------------------------------------------------------
@@ -307,8 +307,9 @@ VEDA_TENSORS_API VEDAresult veda_tensors_unary_b(VEDATensors_chandle handle, VED
 VEDA_TENSORS_API VEDAresult veda_tensors_unary_c(VEDATensors_chandle handle, VEDATensors_tensor* o, VEDATensors_tensor* x, const VEDATensors_unary_op op) {
 	VERIFY(
 		verify_tensors(o, x);
-		if		(o->dtype == VEDA_TENSORS_DTYPE_F32_F32)	verify_same_dtype(VEDA_TENSORS_DTYPE_F32, x);
-		else if	(o->dtype == VEDA_TENSORS_DTYPE_F64_F64)	verify_same_dtype(VEDA_TENSORS_DTYPE_F64, x);
+		if		(o->dtype == VEDA_TENSORS_DTYPE_F32)	verify_same_dtype(VEDA_TENSORS_DTYPE_F32_F32, x);
+		else if	(o->dtype == VEDA_TENSORS_DTYPE_F64)	verify_same_dtype(VEDA_TENSORS_DTYPE_F64_F64, x);
+		else											VEDA_TENSORS_THROW(true, "Unexpected output dtype: %s", veda_tensors_get_dtype(o->dtype));
 	)
 	return veda_tensors_ll_unary_c(handle, o->ptr, x->ptr, o->numel, x->numel, op, x->dtype);
 }
