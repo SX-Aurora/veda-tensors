@@ -31,7 +31,8 @@ typedef enum {
 	VEDA_TENSORS_UNARY_IMAG			= 23,
 	VEDA_TENSORS_UNARY_NEG			= 24,
 	VEDA_TENSORS_UNARY_CLAMP		= 25,
-	VEDA_TENSORS_UNARY_POW			= 26
+	VEDA_TENSORS_UNARY_POW			= 26,
+	VEDA_TENSORS_UNARY_LOG1P		= 27,
 } VEDATensors_unary_op;
 
 //------------------------------------------------------------------------------

@@ -16,6 +16,7 @@ UnaryT(Cos,			std::cos(a))
 UnaryT(Tan,			std::tan(a))
 UnaryT(Exp,			std::exp(a))
 UnaryT(Log,			std::log(a))
+UnaryT(Log1P,		std::log(a+1))
 UnaryT(Ceil,		vec_ceil<S>(a))
 UnaryT(Floor,		std::floor(a))
 UnaryT(Reciprocal,	1/a)
@@ -34,6 +35,7 @@ inline void veda_tensors_unary_t(void* o, const void* x, const size_t co, const 
 		case VEDA_TENSORS_UNARY_TAN:		veda_tensors_x((T*)o, (const T*)x, co, cx, Tan<T>());			return;
 		case VEDA_TENSORS_UNARY_EXP:		veda_tensors_x((T*)o, (const T*)x, co, cx, Exp<T>());			return;
 		case VEDA_TENSORS_UNARY_LOG:		veda_tensors_x((T*)o, (const T*)x, co, cx, Log<T>());			return;
+		case VEDA_TENSORS_UNARY_LOG1P:		veda_tensors_x((T*)o, (const T*)x, co, cx, Log1P<T>());			return;
 		case VEDA_TENSORS_UNARY_CEIL:		veda_tensors_x((T*)o, (const T*)x, co, cx, Ceil<T>());			return;
 		case VEDA_TENSORS_UNARY_FLOOR:		veda_tensors_x((T*)o, (const T*)x, co, cx, Floor<T>());			return;
 		case VEDA_TENSORS_UNARY_RECIPROCAL:	veda_tensors_x((T*)o, (const T*)x, co, cx, Reciprocal<T>());	return;

@@ -4,9 +4,24 @@ VEDA Tensors is a library to provide generic usable high performance kernels
 usually used in AI frameworks. VEDA Tensors is still beta and far from being
 complete.
 
+[![Github](https://img.shields.io/github/v/tag/sx-aurora/veda-tensors?display_name=tag&sort=semver)](https://github.com/sx-aurora/veda)
+[![PyPI](https://img.shields.io/pypi/v/veda-tensors)](https://pypi.org/project/veda-tensors)
+[![License](https://img.shields.io/pypi/l/veda-tensors)](https://pypi.org/project/veda-tensors)
+![Python Versions](https://img.shields.io/pypi/pyversions/veda-tensors)
+![Linux](https://svgshare.com/i/Zhy.svg)
+![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
+![Maintenance](https://img.shields.io/pypi/dm/veda-tensors)
+
 ## Release Notes
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
+
+<tr><td>v0.1.4</td><td>
+<ul>
+	<li>Upgraded to VEDA 2.0</li>
+	<li>Added <code>Log1P</code></li>
+</ul>
+</td></tr>
 
 <tr><td>v0.1.3</td><td>
 <ul>
