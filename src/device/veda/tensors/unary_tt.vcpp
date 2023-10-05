@@ -3,8 +3,8 @@
 //------------------------------------------------------------------------------
 #define UnaryTT(NAME, ...) struct NAME { template<typename T> inline T operator()(const T a, const T b) const { return __VA_ARGS__; } };
 
-UnaryTT(Min, std::min(a, b))
-UnaryTT(Max, std::max(a, b))
+UnaryTT(Min, a < b ? a : b)
+UnaryTT(Max, a > b ? a : b)
 UnaryTT(Add, a + b)
 UnaryTT(Sub, a - b)
 UnaryTT(Mul, a * b)

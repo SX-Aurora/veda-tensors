@@ -33,6 +33,7 @@ typedef enum {
 	VEDA_TENSORS_UNARY_CLAMP		= 25,
 	VEDA_TENSORS_UNARY_POW			= 26,
 	VEDA_TENSORS_UNARY_LOG1P		= 27,
+	VEDA_TENSORS_UNARY_NOT			= 28,
 } VEDATensors_unary_op;
 
 //------------------------------------------------------------------------------

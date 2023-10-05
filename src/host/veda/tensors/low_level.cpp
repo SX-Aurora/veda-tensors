@@ -81,6 +81,7 @@ VEDA_TENSORS_API VEDAresult veda_tensors_ll_unary_b(VEDATensors_chandle handle, 
 		case VEDA_TENSORS_UNARY_ISFINITE:
 		case VEDA_TENSORS_UNARY_ISINF:
 		case VEDA_TENSORS_UNARY_ISNAN:	break;
+		case VEDA_TENSORS_UNARY_NOT:	break;
 		default:	return VEDA_ERROR_NOT_IMPLEMENTED;
 	}
 	
@@ -103,8 +104,10 @@ VEDA_TENSORS_API VEDAresult veda_tensors_ll_unary_t(VEDATensors_chandle handle, 
 		case VEDA_TENSORS_UNARY_CEIL:		
 		case VEDA_TENSORS_UNARY_FLOOR:		
 		case VEDA_TENSORS_UNARY_RECIPROCAL:	
-		case VEDA_TENSORS_UNARY_NEG:		break;
-		default:	return VEDA_ERROR_NOT_IMPLEMENTED;
+		case VEDA_TENSORS_UNARY_NEG:
+			break;
+		default:
+			return VEDA_ERROR_NOT_IMPLEMENTED;
 	}
 
 	GUARD("unary_t(%p, %p, %llu, %llu, %s, %s)", o, x, co, cx, veda_tensors_get_unary(op), veda_tensors_get_dtype(dtype));

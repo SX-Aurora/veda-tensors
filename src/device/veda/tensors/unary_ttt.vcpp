@@ -11,8 +11,16 @@
 
 UnaryTTS(AlphaAdd,	a + (b * c));
 UnaryTTS(AlphaSub,	a - (b * c));
-UnaryTTS(Clamp, 	std::min(std::max(a, b), c));
 #undef UnaryTTS
+
+struct Clamp {
+	template<typename S, typename T>
+	inline T operator()(const T a, const T b, const S c) const {
+		T x	= a > b ? a : b;
+		x	= x < c ? x : c;
+		return x;
+	}
+};
 
 //------------------------------------------------------------------------------
 template<typename T>

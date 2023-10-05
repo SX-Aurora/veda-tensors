@@ -16,6 +16,13 @@ complete.
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
 
+<tr><td>v0.1.5</td><td>
+<ul>
+	<li>Added unary <code>Not</code></li>
+	<li>Bugfixes for NCC >= 5</li>
+</ul>
+</td></tr>
+
 <tr><td>v0.1.4</td><td>
 <ul>
 	<li>Upgraded to VEDA 2.0</li>
