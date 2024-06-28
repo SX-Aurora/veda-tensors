@@ -20,7 +20,7 @@
 		"veda/tensors/cmake/FindVEDATensors.cmake",
 		"veda/tensors/include/veda/tensors/*.h",
 		"veda/tensors/lib64/libveda-tensors.so*",
-		"veda/tensors/libve/libveda-tensors.vso"
+		"veda/tensors/libve/libveda-tensors.vso*"
 	],
 	"requires-dist": [
 		"veda (>=@VEDA_VERSION@, <@VEDA_VERSION_NEXT_MAJOR@)",

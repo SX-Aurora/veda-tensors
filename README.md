@@ -8,13 +8,18 @@ complete.
 [![PyPI](https://img.shields.io/pypi/v/veda-tensors)](https://pypi.org/project/veda-tensors)
 [![License](https://img.shields.io/pypi/l/veda-tensors)](https://pypi.org/project/veda-tensors)
 ![Python Versions](https://img.shields.io/pypi/pyversions/veda-tensors)
-![Linux](https://svgshare.com/i/Zhy.svg)
 ![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
 ![Maintenance](https://img.shields.io/pypi/dm/veda-tensors)
 
 ## Release Notes
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
+
+<tr><td>v0.1.6</td><td>
+<ul>
+	<li>Added VE3 support</li>
+</ul>
+</td></tr>
 
 <tr><td>v0.1.5</td><td>
 <ul>
