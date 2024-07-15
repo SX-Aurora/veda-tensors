@@ -15,6 +15,12 @@ complete.
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
 
+<tr><td>v0.1.7</td><td>
+<ul>
+	<li>Fixed race condition in cat</li>
+</ul>
+</td></tr>
+
 <tr><td>v0.1.6</td><td>
 <ul>
 	<li>Added VE3 support</li>

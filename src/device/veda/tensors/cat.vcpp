@@ -81,11 +81,8 @@ static void veda_tensors_cat_c(T* output, const size_t cnt, const VEDAdeviceptr*
 //------------------------------------------------------------------------------
 // CAT
 //------------------------------------------------------------------------------
-__global__ void veda_tensors_cat(const int cnt, VEDAdeviceptr _output, const VEDAdeviceptr _inputs, const VEDAdeviceptr _offsets, const VEDAdeviceptr _center, const size_t left, const size_t right, const int bytes) {
-	auto output		= VEDAptr<void>			(_output) .ptr();
-	auto inputs		= VEDAptr<VEDAdeviceptr>(_inputs) .ptr();
-	auto offsets	= VEDAptr<size_t>		(_offsets).ptr();
-	auto center		= VEDAptr<size_t>		(_center) .ptr();
+__global__ void veda_tensors_cat(const int cnt, VEDAdeviceptr _output, const VEDAdeviceptr* inputs, const size_t* offsets, const size_t* center, const size_t left, const size_t right, const int bytes) {
+	auto output = VEDAptr<void>(_output).ptr();
 
 	if(left == 1) {
 		if(right == 1) {

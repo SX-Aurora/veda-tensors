@@ -10,7 +10,7 @@ __global__	uint64_t	veda_tensors_count			(VEDAdeviceptr ptr, const uint64_t elem
 __global__	void		veda_tensors_binary			(VEDAdeviceptr o, VEDAdeviceptr x, VEDAdeviceptr y, const size_t co, const size_t cx, const size_t cy, const int op, const int type);
 __global__	void		veda_tensors_binary_s		(VEDAdeviceptr o, VEDAdeviceptr x, const int64_t alpha_x, const int64_t alpha_y, const size_t co, const size_t cx, const int op, const int dtype);
 __global__	void		veda_tensors_bitwise		(VEDAdeviceptr o, VEDAdeviceptr x, VEDAdeviceptr y, const size_t co, const size_t cx, const size_t cy, const int op, const int bytes);
-__global__	void		veda_tensors_cat			(const int cnt, VEDAdeviceptr output, const VEDAdeviceptr inputs, const VEDAdeviceptr offsets, const VEDAdeviceptr center, const size_t left, const size_t right, const int bytes);
+__global__	void		veda_tensors_cat			(const int cnt, VEDAdeviceptr output, const VEDAdeviceptr* inputs, const size_t* offsets, const size_t* center, const size_t left, const size_t right, const int bytes);
 __global__	void		veda_tensors_convert		(VEDAdeviceptr dst, VEDAdeviceptr src, const uint64_t elements, const int dstType, const int srcType);
 __global__	void		veda_tensors_copy			(VEDAdeviceptr o, VEDAdeviceptr x, const size_t cnt, const int bytes);
 __global__	void		veda_tensors_masked_fill	(VEDAdeviceptr out, VEDAdeviceptr value, VEDAdeviceptr mask, const size_t elements, const size_t otherElements, const int bytes);

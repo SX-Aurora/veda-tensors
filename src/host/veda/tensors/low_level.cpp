@@ -372,22 +372,11 @@ VEDA_TENSORS_API VEDAresult veda_tensors_ll_cat(VEDATensors_chandle handle, cons
 	auto s_offsets	= sizeof(size_t) * inputCnt;
 	auto s_center	= sizeof(size_t) * inputCnt;
 
-	VEDAdeviceptr d_inputs	= 0;
-	VEDAdeviceptr d_offsets	= 0;
-	VEDAdeviceptr d_center	= 0;
-	CVEDA(vedaMemAllocAsync(&d_inputs,  s_inputs,  0));
-	CVEDA(vedaMemAllocAsync(&d_offsets, s_offsets, 0));
-	CVEDA(vedaMemAllocAsync(&d_center,  s_center,  0));
-
-	CVEDA(vedaMemcpyHtoDAsync(d_inputs,  inputs,         s_inputs,  0));
-	CVEDA(vedaMemcpyHtoDAsync(d_offsets, offsets.data(), s_offsets, 0));
-	CVEDA(vedaMemcpyHtoDAsync(d_center,  center .data(), s_center,  0));
-
-	CVEDA(vedaLaunchKernel(KERNEL(CAT), 0, inputCnt, output, d_inputs, d_offsets, d_center, left, right, veda_tensors_dtype_bytes(dtype)));
-
-	CVEDA(vedaMemFreeAsync(d_inputs, 0));
-	CVEDA(vedaMemFreeAsync(d_offsets, 0));
-	CVEDA(vedaMemFreeAsync(d_center, 0));
+	CVEDA(vedaLaunchKernel(KERNEL(CAT), 0, inputCnt, output,
+		VEDAstack((void*)inputs,			VEDA_ARGS_INTENT_IN, s_inputs),
+		VEDAstack((void*)offsets.data(),	VEDA_ARGS_INTENT_IN, s_offsets), 
+		VEDAstack((void*)center .data(),	VEDA_ARGS_INTENT_IN, s_center),
+		left, right, veda_tensors_dtype_bytes(dtype)));
 
 	return VEDA_SUCCESS;
 }
