@@ -5,19 +5,24 @@
 //------------------------------------------------------------------------------
 template<typename T>
 static void veda_tensors_cat_lcr(T* output, const int cnt, const VEDAdeviceptr* inputs, const size_t* offsets, const size_t* centers, const size_t left, const size_t right) {
+	size_t csum = 0;
+	for(int i = 0; i < cnt; i++)
+		csum += centers[i];
+
 	for(int i = 0; i < cnt; i++) {
 		auto input	= VEDAptr<T>(inputs[i]).ptr();
 		auto offset = offsets[i];
 		auto center = centers[i];
 
-		for(size_t L = 0; L < left; L++) {
-			for(size_t C = 0; C < center; C++) {
-				auto out = output + L * offset * center + (offset + C) * right;
-				auto in  = input  + L *          center +           C  * right;
+		#pragma omp parallel for
+		for(size_t LC = 0; LC < left*center; LC++) {
+			const size_t L = LC / center;
+			const size_t C = LC % center;
+			auto out = output + L * csum   + (offset + C) * right;
+			auto in  = input  + L * center +           C  * right;
 
-				for(size_t R = 0; R < right; R++)
-					out[R] = in[R];
-			}
+			for(size_t R = 0; R < right; R++)
+				out[R] = in[R];
 		}
 	}
 }
@@ -32,6 +37,7 @@ static void veda_tensors_cat_cr(T* output, const int cnt, const VEDAdeviceptr* i
 		auto offset = offsets[i];
 		auto center = centers[i];
 
+		#pragma omp parallel for
 		for(size_t C = 0; C < center; C++) {
 			auto out = output + (offset + C) * right;
 			auto in  = input  +           C  * right;
@@ -47,14 +53,19 @@ static void veda_tensors_cat_cr(T* output, const int cnt, const VEDAdeviceptr* i
 //------------------------------------------------------------------------------
 template<typename T>
 static void veda_tensors_cat_lc(T* output, const int cnt, const VEDAdeviceptr* inputs, const size_t* offsets, const size_t* centers, const size_t left) {
+	size_t csum = 0;
+	for(int i = 0; i < cnt; i++)
+		csum += centers[i];
+
 	for(int i = 0; i < cnt; i++) {
 		auto input	= VEDAptr<T>(inputs[i]).ptr();
 		auto offset = offsets[i];
 		auto center = centers[i];
 
+		#pragma omp parallel for
 		for(size_t L = 0; L < left; L++) {
-			auto out = output + L * offset * center + offset;
-			auto in  = input  + L *          center;
+			auto out = output + L * csum + offset;
+			auto in  = input  + L * center;
 
 			for(size_t C = 0; C < center; C++)
 				out[C] = in[C];
@@ -67,6 +78,7 @@ static void veda_tensors_cat_lc(T* output, const int cnt, const VEDAdeviceptr* i
 //------------------------------------------------------------------------------
 template<typename T>
 static void veda_tensors_cat_c(T* output, const size_t cnt, const VEDAdeviceptr* inputs, const size_t* offsets, const size_t* centers) {
+	#pragma omp parallel for
 	for(int i = 0; i < cnt; i++) {
 		auto input	= VEDAptr<T>(inputs[i]).ptr();
 		auto offset = offsets[i];
@@ -101,7 +113,7 @@ __global__ void veda_tensors_cat(const int cnt, VEDAdeviceptr _output, const VED
 			}					
 		}
 	} else {
-		if(right == 0) {
+		if(right == 1) {
 			switch(bytes) {
 				case 1:	veda_tensors_cat_lc<int8_t> ((int8_t*) output, cnt, inputs, offsets, center, left);	return;
 				case 2:	veda_tensors_cat_lc<int16_t>((int16_t*)output, cnt, inputs, offsets, center, left);	return;

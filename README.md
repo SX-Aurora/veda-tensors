@@ -15,6 +15,12 @@ complete.
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
 
+<tr><td>v0.1.8</td><td>
+<ul>
+	<li>Bugfixes cat</li>
+</ul>
+</td></tr>
+
 <tr><td>v0.1.7</td><td>
 <ul>
 	<li>Fixed race condition in cat</li>
