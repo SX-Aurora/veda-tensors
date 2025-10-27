@@ -1,4 +1,4 @@
-// Copyright 2022 NEC Laboratories Europe
+// Copyright 2022-2025 NEC Laboratories Europe
 
 #pragma once
 
@@ -7,6 +7,8 @@ VEDA_TENSORS_API VEDAresult	veda_tensors_adadelta		(VEDATensors_chandle handle, 
 VEDA_TENSORS_API VEDAresult	veda_tensors_adagrad		(VEDATensors_chandle handle, VEDATensors_tensor* var, VEDATensors_tensor* accum, VEDATensors_tensor* grad, VEDATensors_scalar epsilon, VEDATensors_scalar lr, const bool update_slots);
 VEDA_TENSORS_API VEDAresult	veda_tensors_adam			(VEDATensors_chandle handle, VEDATensors_tensor* var, VEDATensors_tensor* m, VEDATensors_tensor* v, VEDATensors_tensor* grad, VEDATensors_scalar beta1_power, VEDATensors_scalar beta2_power, VEDATensors_scalar lr, VEDATensors_scalar beta1, VEDATensors_scalar beta2, VEDATensors_scalar epsilon, const bool use_nesterov);
 VEDA_TENSORS_API VEDAresult	veda_tensors_adamax			(VEDATensors_chandle handle, VEDATensors_tensor* var, VEDATensors_tensor* m, VEDATensors_tensor* v, VEDATensors_tensor* grad, VEDATensors_scalar beta1_power, VEDATensors_scalar lr, VEDATensors_scalar beta1, VEDATensors_scalar beta2, VEDATensors_scalar epsilon);
+VEDA_TENSORS_API VEDAresult	veda_tensors_arange_float	(VEDATensors_chandle handle, VEDATensors_tensor* o, const double start, const double step);
+VEDA_TENSORS_API VEDAresult	veda_tensors_arange_int		(VEDATensors_chandle handle, VEDATensors_tensor* o, const int64_t start, const int64_t step);
 VEDA_TENSORS_API VEDAresult	veda_tensors_binary			(VEDATensors_chandle handle, VEDATensors_tensor* o, VEDATensors_tensor* x, VEDATensors_tensor* y, const VEDATensors_binary_op op);
 VEDA_TENSORS_API VEDAresult	veda_tensors_binary_s		(VEDATensors_chandle handle, VEDATensors_tensor* o, VEDATensors_tensor* x, const VEDATensors_scalar alpha, const VEDATensors_binary_op op);
 VEDA_TENSORS_API VEDAresult	veda_tensors_bitwise		(VEDATensors_chandle handle, VEDATensors_tensor* o, VEDATensors_tensor* x, VEDATensors_tensor* y, const VEDATensors_bitwise_op op);

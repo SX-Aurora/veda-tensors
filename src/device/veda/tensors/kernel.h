@@ -1,4 +1,4 @@
-// Copyright 2022 NEC Laboratories Europe
+// Copyright 2022-2025 NEC Laboratories Europe
 
 #pragma once 
 
@@ -39,6 +39,12 @@
 		KERNEL_SINT(FUNC, __VA_ARGS__)\
 		KERNEL_UINT(FUNC, __VA_ARGS__)\
 		KERNEL_FLOAT_(FUNC, __VA_ARGS__)\
+	)
+
+#define KERNEL_INTEGER(TYPE, FUNC, ...)\
+	KERNEL(TYPE,\
+		KERNEL_SINT(FUNC, __VA_ARGS__)\
+		KERNEL_UINT(FUNC, __VA_ARGS__)\
 	)
 
 #define KERNEL_ALL(TYPE, FUNC, ...)\

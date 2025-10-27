@@ -3,6 +3,7 @@ SET(SRC
 	${CMAKE_CURRENT_LIST_DIR}/adagrad.vcpp
 	${CMAKE_CURRENT_LIST_DIR}/adam.vcpp
 	${CMAKE_CURRENT_LIST_DIR}/adamax.vcpp
+	${CMAKE_CURRENT_LIST_DIR}/arange.vcpp
 	${CMAKE_CURRENT_LIST_DIR}/binary.vcpp
 	${CMAKE_CURRENT_LIST_DIR}/bitwise.vcpp
 	${CMAKE_CURRENT_LIST_DIR}/cat.vcpp

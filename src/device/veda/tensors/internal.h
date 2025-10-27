@@ -1,4 +1,4 @@
-// Copyright 2022 NEC Laboratories Europe
+// Copyright 2022-2025 NEC Laboratories Europe
 
 #pragma once 
 

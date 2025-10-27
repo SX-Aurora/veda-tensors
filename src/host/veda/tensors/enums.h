@@ -1,4 +1,4 @@
-// Copyright 2022 NEC Laboratories Europe
+// Copyright 2022-2025 NEC Laboratories Europe
 
 #pragma once 
 
@@ -130,7 +130,9 @@ typedef enum {
 	VEDA_TENSORS_KERNEL_WHERE				= 28,
 	VEDA_TENSORS_KERNEL_BINARY_S			= 29,
 	VEDA_TENSORS_KERNEL_SOFTMAX				= 30,
-	VEDA_TENSORS_KERNEL_CNT					= 31
+	VEDA_TENSORS_KERNEL_ARANGE_FLOAT		= 31,
+	VEDA_TENSORS_KERNEL_ARANGE_INT			= 32,
+	VEDA_TENSORS_KERNEL_CNT					= 33
 } VEDATensors_kernel;
 
 //------------------------------------------------------------------------------

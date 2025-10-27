@@ -26,10 +26,10 @@ inline std::tuple<size_t, size_t, size_t> compute_lcr(const VEDATensors_tensor* 
 //------------------------------------------------------------------------------
 inline void verify_same_shapes(VEDATensors_tensor* ref, VEDATensors_tensor* t) {
 	VEDA_TENSORS_THROW(ref->dims != t->dims, "Expected %i dims, but found %i.", ref->dims, t->dims);
-	VEDA_TENSORS_THROW(ref->numel != t->numel, "Expected %llu numels, but found %llu.", ref->numel, t->numel);
+	VEDA_TENSORS_THROW(ref->numel != t->numel, "Expected %lu numels, but found %lu.", ref->numel, t->numel);
 #ifndef NDEBUG
 	for(int i = 0; i < ref->dims; i++)
-		VEDA_TENSORS_THROW(ref->shape[i] != t->shape[i], "Expected size %llu, but found %llu in dim %i.", ref->shape[i], t->shape[i], i);
+		VEDA_TENSORS_THROW(ref->shape[i] != t->shape[i], "Expected size %lu, but found %lu in dim %i.", ref->shape[i], t->shape[i], i);
 #endif
 }
 
@@ -70,7 +70,7 @@ inline void verify_tensors(VEDATensors_tensor* t) {
 	size_t numel = 1;
 	for(int i = 0; i < t->dims; i++)
 		numel *= t->shape[i];
-	VEDA_TENSORS_THROW(numel != t->numel, "Expected numel to be %llu but are %llu.", numel, t->numel);
+	VEDA_TENSORS_THROW(numel != t->numel, "Expected numel to be %lu but are %lu.", numel, t->numel);
 #endif
 }
 
@@ -289,7 +289,7 @@ VEDA_TENSORS_API VEDAresult veda_tensors_transpose(VEDATensors_chandle handle, V
 		verify_same_dtype	(dst, src);
 		THROWIF(dst->dims != 2, "Expected dst to be 2D but is %iD", dst->dims);
 		THROWIF(src->dims != 2, "Expected dst to be 2D but is %iD", src->dims);
-		THROWIF(dst->shape[0] != src->shape[1] || dst->shape[1] != src->shape[0], "Incompatible shapes found src: [%llu, %llu], dst: [%llu, %llu]", src->shape[0], src->shape[1], dst->shape[0], dst->shape[1]);
+		THROWIF(dst->shape[0] != src->shape[1] || dst->shape[1] != src->shape[0], "Incompatible shapes found src: [%lu, %lu], dst: [%lu, %lu]", src->shape[0], src->shape[1], dst->shape[0], dst->shape[1]);
 	)
 	return veda_tensors_ll_transpose(handle, dst->ptr, src->ptr, dst->shape[0], dst->shape[1], dst->dtype);
 }
@@ -369,7 +369,33 @@ VEDA_TENSORS_API VEDAresult veda_tensors_unary_tts(VEDATensors_chandle handle, V
 		verify_tensors		(o, x, y);
 		verify_same_dtype	(o, x, y);
 	)
-	return veda_tensors_ll_unary_tts(handle, o->ptr, x->ptr, y->ptr, alpha, o->numel, x->numel, y->numel, op, x->dtype);
+
+	const auto co = o->numel, cx = x->numel, cy = y->numel;
+	if( // element-wise or fully broadcasted
+		(co == cx || cx == 1) &&
+		(co == cy || cy == 1) &&
+		(cx == cy || cx == 1 || cy == 1)
+	) {
+		return veda_tensors_ll_unary_tts(handle, o->ptr, x->ptr, y->ptr, alpha, co, cx, cy, op, x->dtype);
+	} else if(co == cx && o->dims == 2 && x->dims == 2 && y->dims == 2 && o->shape[0] == y->shape[0] && y->shape[1] == 1) {
+		auto o_ = o->ptr;
+		auto x_ = x->ptr;
+		auto y_ = y->ptr;
+
+		const auto bytes = veda_tensors_dtype_bytes(x->dtype);
+		const auto numel = co/cy;
+		for(size_t i = 0; i < o->shape[0]; i++) {
+			auto res = veda_tensors_ll_unary_tts(handle, o_, x_, y_, alpha, numel, numel, 1, op, x->dtype);
+			o_ += bytes * numel;
+			x_ += bytes * numel;
+			y_ += bytes;
+			if(res != VEDA_SUCCESS)
+				return res;
+		}
+		return VEDA_SUCCESS;
+	}
+	
+	return VEDA_ERROR_NOT_IMPLEMENTED;
 }
 
 //------------------------------------------------------------------------------
@@ -394,7 +420,7 @@ VEDA_TENSORS_API VEDAresult veda_tensors_unary_ttts(VEDATensors_chandle handle, 
 VEDA_TENSORS_API void veda_tensors_debug(VEDATensors_tensor* t) {
 	static_assert(VEDA_TENSORS_MAX_DIMS == 8); // needs to be updated if this changes
 	ASSERT(t);
-	L_INFO("VEDATensors_tensor [ptr: %p, dtype: %s, dims: %i, numel: %llu, shape: [%llu, %llu, %llu, %llu, %llu, %llu, %llu, %llu]",
+	L_INFO("VEDATensors_tensor [ptr: %p, dtype: %s, dims: %i, numel: %lu, shape: [%lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu]",
 		t->ptr, veda_tensors_get_dtype(t->dtype), t->dims, t->numel, t->shape[0], t->shape[1], t->shape[2], t->shape[3], t->shape[4], t->shape[5], t->shape[6], t->shape[7]);
 }
 
@@ -445,6 +471,22 @@ VEDA_TENSORS_API VEDAresult veda_tensors_where(VEDATensors_chandle handle, VEDAT
 		verify_same_dtype	(o,    y, z);
 	)
 	return veda_tensors_ll_where(handle, o->ptr, x->ptr, y->ptr, z->ptr, o->numel, x->numel, y->numel, z->numel, x->dtype, o->dtype);
+}
+
+//------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_arange_float(VEDATensors_chandle handle, VEDATensors_tensor* o,  const double start, const double step) {
+	VERIFY(
+		verify_tensors(o);
+	)
+	return veda_tensors_ll_arange_float(handle, o->ptr, o->dtype, o->numel, start, step);
+}
+
+//------------------------------------------------------------------------------
+VEDA_TENSORS_API VEDAresult veda_tensors_arange_int(VEDATensors_chandle handle, VEDATensors_tensor* o, const int64_t start, const int64_t step) {
+	VERIFY(
+		verify_tensors(o);
+	)
+	return veda_tensors_ll_arange_int(handle, o->ptr, o->dtype, o->numel, start, step);
 }
 
 //------------------------------------------------------------------------------

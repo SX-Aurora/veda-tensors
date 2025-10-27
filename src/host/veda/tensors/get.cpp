@@ -131,6 +131,8 @@ VEDA_TENSORS_API const char* veda_tensors_get_kernel(const VEDATensors_kernel ke
 		case VEDA_TENSORS_KERNEL_ADAGRAD:				return "VEDA_TENSORS_KERNEL_ADAGRAD";
 		case VEDA_TENSORS_KERNEL_ADAM:					return "VEDA_TENSORS_KERNEL_ADAM";
 		case VEDA_TENSORS_KERNEL_ADAMAX:				return "VEDA_TENSORS_KERNEL_ADAMAX";
+		case VEDA_TENSORS_KERNEL_ARANGE_FLOAT:			return "VEDA_TENSORS_KERNEL_ARANGE_FLOAT";
+		case VEDA_TENSORS_KERNEL_ARANGE_INT:			return "VEDA_TENSORS_KERNEL_ARANGE_INT";
 		case VEDA_TENSORS_KERNEL_BINARY:				return "VEDA_TENSORS_KERNEL_BINARY";
 		case VEDA_TENSORS_KERNEL_BINARY_S:				return "VEDA_TENSORS_KERNEL_BINARY_S";
 		case VEDA_TENSORS_KERNEL_BITWISE:				return "VEDA_TENSORS_KERNEL_BITWISE";
@@ -169,6 +171,8 @@ VEDA_TENSORS_API const char* veda_tensors_get_kernel_func(const VEDATensors_kern
 		case VEDA_TENSORS_KERNEL_ADAGRAD:			return "veda_tensors_adagrad";
 		case VEDA_TENSORS_KERNEL_ADAM:				return "veda_tensors_adam";
 		case VEDA_TENSORS_KERNEL_ADAMAX:			return "veda_tensors_adamax";
+		case VEDA_TENSORS_KERNEL_ARANGE_FLOAT:		return "veda_tensors_arange_float";
+		case VEDA_TENSORS_KERNEL_ARANGE_INT:		return "veda_tensors_arange_int";
 		case VEDA_TENSORS_KERNEL_BINARY:			return "veda_tensors_binary";
 		case VEDA_TENSORS_KERNEL_BINARY_S:			return "veda_tensors_binary_s";
 		case VEDA_TENSORS_KERNEL_BITWISE:			return "veda_tensors_bitwise";

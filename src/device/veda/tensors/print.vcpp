@@ -5,18 +5,18 @@
 	elements = std::min(elements, 20lu);\
 	_Pragma(VEDA_TENSORS_NO_VECTOR)\
 	for(size_t i = 0; i < elements; i++)\
-		L_INFO("%p[%llu]: " SYM "\n", &ptr[i], i, (CAST)ptr[i]);\
+		L_INFO("%p[%lu]: " SYM "\n", &ptr[i], i, (CAST)ptr[i]);\
 	return VEDA_SUCCESS;\
 }
 
 PRINT(int8_t,	"%i",	int32_t)
 PRINT(int16_t,	"%i",	int32_t)
 PRINT(int32_t,	"%i",	int32_t)
-PRINT(int64_t,	"%lli",	int64_t)
+PRINT(int64_t,	"%li",	int64_t)
 PRINT(uint8_t,	"%u",	uint32_t)
 PRINT(uint16_t,	"%u",	uint32_t)
 PRINT(uint32_t,	"%u",	uint32_t)
-PRINT(uint64_t,	"%llu",	uint64_t)
+PRINT(uint64_t,	"%lu",	uint64_t)
 PRINT(float,	"%f",	float)
 PRINT(double,	"%f",	double)
 #undef PRINT
@@ -26,7 +26,7 @@ PRINT(double,	"%f",	double)
 	elements = std::min(elements, 20lu);\
 	_Pragma(VEDA_TENSORS_NO_VECTOR)\
 	for(size_t i = 0; i < elements; i++)\
-		L_INFO("%p[%llu]: " SYM "\n", &ptr[i], i, ptr[i].x, ptr[i].y);\
+		L_INFO("%p[%lu]: " SYM "\n", &ptr[i], i, ptr[i].x, ptr[i].y);\
 	return VEDA_SUCCESS;\
 }
 

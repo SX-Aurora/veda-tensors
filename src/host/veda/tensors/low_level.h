@@ -1,4 +1,4 @@
-// Copyright 2022 NEC Laboratories Europe
+// Copyright 2022-2025 NEC Laboratories Europe
 
 #pragma once
 
@@ -7,6 +7,8 @@ VEDA_TENSORS_API VEDAresult	veda_tensors_ll_adadelta		(VEDATensors_chandle handl
 VEDA_TENSORS_API VEDAresult	veda_tensors_ll_adagrad			(VEDATensors_chandle handle, VEDAdeviceptr var, VEDAdeviceptr accum, VEDAdeviceptr grad, VEDATensors_scalar epsilon, VEDATensors_scalar lr, const bool update_slots, const size_t numel, const VEDATensors_dtype dtype);
 VEDA_TENSORS_API VEDAresult	veda_tensors_ll_adam			(VEDATensors_chandle handle, VEDAdeviceptr var, VEDAdeviceptr m, VEDAdeviceptr v, VEDAdeviceptr grad, VEDATensors_scalar beta1_power, VEDATensors_scalar beta2_power, VEDATensors_scalar lr, VEDATensors_scalar beta1, VEDATensors_scalar beta2, VEDATensors_scalar epsilon, const bool use_nesterov, const size_t numel, const VEDATensors_dtype dtype);
 VEDA_TENSORS_API VEDAresult	veda_tensors_ll_adamax			(VEDATensors_chandle handle, VEDAdeviceptr var, VEDAdeviceptr m, VEDAdeviceptr v, VEDAdeviceptr grad, VEDATensors_scalar beta1_power, VEDATensors_scalar lr, VEDATensors_scalar beta1, VEDATensors_scalar beta2, VEDATensors_scalar epsilon, const size_t numel, const VEDATensors_dtype dtype);
+VEDA_TENSORS_API VEDAresult	veda_tensors_ll_arange_float	(VEDATensors_chandle handle, VEDAdeviceptr o, const VEDATensors_dtype dtype, const size_t cnt, const double start, const double step);
+VEDA_TENSORS_API VEDAresult	veda_tensors_ll_arange_int		(VEDATensors_chandle handle, VEDAdeviceptr o, const VEDATensors_dtype dtype, const size_t cnt, const int64_t start, const int64_t step);
 VEDA_TENSORS_API VEDAresult	veda_tensors_ll_binary			(VEDATensors_chandle handle, VEDAdeviceptr o, VEDAdeviceptr x, VEDAdeviceptr y, const size_t oc, const size_t ox, const size_t oy, const VEDATensors_binary_op op, const VEDATensors_dtype dtype);
 VEDA_TENSORS_API VEDAresult	veda_tensors_ll_binary_s		(VEDATensors_chandle handle, VEDAdeviceptr o, VEDAdeviceptr x, const VEDATensors_scalar alpha, const size_t oc, const size_t ox, const VEDATensors_binary_op op, const VEDATensors_dtype dtype);
 VEDA_TENSORS_API VEDAresult	veda_tensors_ll_bitwise			(VEDATensors_chandle handle, VEDAdeviceptr o, VEDAdeviceptr x, VEDAdeviceptr y, const size_t oc, const size_t ox, const size_t oy, const VEDATensors_bitwise_op op, const VEDATensors_dtype dtype);

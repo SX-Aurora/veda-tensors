@@ -15,6 +15,13 @@ complete.
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
 
+<tr><td>v0.1.9</td><td>
+<ul>
+	<li>Bugfixes unary_tts</li>
+	<li>Added arange</li>
+</ul>
+</td></tr>
+
 <tr><td>v0.1.8</td><td>
 <ul>
 	<li>Bugfixes cat</li>
